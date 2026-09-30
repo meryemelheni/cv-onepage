@@ -1,0 +1,30 @@
+:root{--navy:#17414F;--amber:#E2A83B;--ink:#1F2A30;--muted:#5C6A70;--desk:#D9DEE2}
+*{box-sizing:border-box}
+body{margin:0;padding:2rem 1rem;background:var(--desk);color:var(--ink);font:400 .95rem/1.55 "Nunito Sans",system-ui,sans-serif}
+ul{list-style:none;margin:0;padding:0}
+.sheet{display:grid;grid-template-columns:15rem 1fr;max-width:52rem;min-height:70rem;margin:0 auto;background:#fff;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.side{background:var(--navy);color:#fff;padding:2rem 1.5rem}
+.photo{width:8rem;height:8rem;margin:0 auto 2rem;border-radius:50%;background:var(--amber);color:var(--navy);display:grid;place-items:center;overflow:hidden;font:600 3rem "Poppins",sans-serif}
+.photo img{width:100%;height:100%;object-fit:cover}
+.side section{margin-bottom:1.6rem}
+.side h2{margin:0 0 .8rem;padding-bottom:.3rem;border-bottom:2px solid var(--amber);font:600 .95rem "Poppins",sans-serif}
+.side li{margin:.4rem 0;font-size:.88rem;overflow-wrap:anywhere}
+.side a{color:inherit}
+.skills span{display:block;font-size:.85rem}
+.bar{height:6px;margin-top:.2rem;border-radius:3px;background:rgba(255,255,255,.2)}
+.bar i{display:block;width:0;height:100%;border-radius:3px;background:var(--amber);transition:width .9s ease}
+.main{padding:2.5rem 2.25rem}
+h1{margin:0;color:var(--navy);font:600 2.4rem/1.1 "Poppins",sans-serif}
+.role{margin:.4rem 0 1.8rem;color:var(--muted);font-size:1.05rem}
+.main section{margin-bottom:1.8rem}
+.main h2{margin:0 0 1rem;padding:.3rem .7rem;border-left:5px solid var(--amber);background:#F1F4F5;color:var(--navy);font:600 1.05rem "Poppins",sans-serif}
+.timeline{margin-left:.4rem;padding-left:1.2rem;border-left:2px solid var(--amber)}
+.timeline article{position:relative;margin-bottom:1rem}
+.timeline article::before{content:"";position:absolute;left:-1.6rem;top:.45rem;width:.6rem;height:.6rem;border-radius:50%;background:var(--navy)}
+h3{margin:0;font:600 .98rem "Poppins",sans-serif}
+article p{margin:.15rem 0 0;color:var(--muted)}
+.print{position:fixed;top:1rem;right:1rem;padding:.5rem 1rem;border:0;border-radius:4px;background:var(--navy);color:#fff;font:inherit;font-size:.85rem;cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+@media(max-width:720px){.sheet{grid-template-columns:1fr;min-height:0}.main{padding:1.75rem 1.25rem}}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+@media print{@page{size:A4;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{padding:0;background:#fff}.sheet{max-width:none;min-height:0;box-shadow:none}.print{display:none}}
