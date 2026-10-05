@@ -3,82 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Meryem Elheni - CV</title>
-<meta name="description" content="CV one page de Meryem Elheni, étudiante DevOps et Cloud.">
+<title>Meryem Elheni - DevSecOps Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<button id="print" class="print" type="button">Télécharger en PDF</button>
-<div class="sheet">
-  <aside class="side">
-    <!-- Pour une vraie photo : remplace le M par <img src="photo.jpg" alt="Meryem"> -->
-    <div class="photo">M</div>
-    <section>
-      <h2>Contact</h2>
-      <ul>
-        <li><a href="mailto:elhenimeryem12@gmail.com">elhenimeryem12@gmail.com</a></li>
-        <li><a href="https://github.com/meryemelheni">github.com/meryemelheni</a></li>
-        <li>Tunis, Tunisie</li>
-      </ul>
-    </section>
-    <section>
-      <h2>Compétences</h2>
-      <ul class="skills">
-        <li><span>Linux (Ubuntu Server)</span><div class="bar"><i data-level="80"></i></div></li>
-        <li><span>SSH et sécurité</span><div class="bar"><i data-level="80"></i></div></li>
-        <li><span>Docker</span><div class="bar"><i data-level="75"></i></div></li>
-        <li><span>Jenkins</span><div class="bar"><i data-level="70"></i></div></li>
-        <li><span>Git et GitHub</span><div class="bar"><i data-level="75"></i></div></li>
-        <li><span>HTML5, CSS3, JavaScript</span><div class="bar"><i data-level="70"></i></div></li>
-      </ul>
-    </section>
-    <section>
-      <h2>Langues</h2>
-      <ul>
-        <li>Arabe : langue maternelle</li>
-        <li>Français : courant</li>
-        <li>Anglais : intermédiaire</li>
-      </ul>
-    </section>
-  </aside>
-  <main class="main">
-    <h1>Meryem Elheni</h1>
-    <p class="role">Étudiante DevOps &amp; Cloud</p>
-    <section>
-      <h2>Profil</h2>
-      <p>Étudiante en DevOps et Cloud, je monte et sécurise des serveurs Linux, je conteneurise des applications et j'automatise leur déploiement. Je cherche un stage pour appliquer ces pratiques sur des projets réels.</p>
-    </section>
-    <section>
-      <h2>Projets</h2>
-      <div class="timeline">
-        <article>
-          <h3>Serveur Ubuntu 26.04 sécurisé</h3>
-          <p>Machine virtuelle sous VMware, accès distant par clé SSH protégée par une passphrase, connexion par mot de passe désactivée.</p>
-        </article>
-        <article>
-          <h3>Docker sur la VM</h3>
-          <p>Installation depuis le dépôt officiel, puis test avec un conteneur nginx exposé sur le port 80.</p>
-        </article>
-        <article>
-          <h3>Serveur d'intégration continue Jenkins</h3>
-          <p>Jenkins installé comme service avec Java 21, accessible sur le port 8080 depuis la machine physique.</p>
-        </article>
-      </div>
-    </section>
-    <section>
-      <h2>Formation</h2>
-      <div class="timeline">
-        <article>
-          <h3>DevOps &amp; Cloud, 2026/2027</h3>
-          <p>Iset Tozeur</p>
-        </article>
-      </div>
-    </section>
-  </main>
-</div>
+<header class="top">
+  <a class="brand" href="#about">Meryem Elheni</a>
+  <nav>
+    <a href="#about">About</a><a href="#skills">Skills</a><a href="#devsecops">DevSecOps</a>
+    <a href="#projects">Projects</a><a href="#experience">Experience</a><a href="#contact">Contact</a>
+  </nav>
+</header>
+<main>
+  <section id="about" class="hero">
+       <h2>About</h2>
+    <h1>Étudiante DevOps &amp; Cloud</h1>
+    <p>Je monte et sécurise des serveurs Linux, je conteneurise des applications et j'automatise leur déploiement. Ce portfolio est lui-même servi par un conteneur Nginx.</p>
+  </section>
+  <section id="skills">
+    <h2>Skills</h2>
+    <ul class="tags">
+      <li>Linux (Ubuntu Server)</li><li>SSH et sécurité</li><li>Réseau (NAT, ports)</li>
+      <li>HTML5, CSS3, JavaScript</li><li>Git et GitHub</li>
+    </ul>
+  </section>
+  <section id="devsecops">
+    <h2>DevSecOps Skills</h2>
+    <div id="tools" class="grid"></div>
+  </section>
+  <section id="projects">
+    <h2>Projects</h2>
+    <div id="project-list" class="grid"></div>
+  </section>
+  <section id="experience">
+    <h2>Experience</h2>
+    <div class="timeline">
+      <!-- À MODIFIER : tes vraies expériences -->
+      <article><h3>Formation DevOps &amp; Cloud, 2025/2027</h3><p>Iset Tozeur</p></article>
+      <article><h3>Projet personnel : infrastructure de test</h3><p>VM Ubuntu, Docker, Jenkins et dépôt GitHub en SSH.</p></article>
+    </div>
+  </section>
+  <section id="contact">
+    <h2>Contact</h2>
+    <p><a href="mailto:elhenimeryem12@gmail.com">elhenimeryem12@gmail.com</a></p>
+    <p><a href="https://github.com/meryemelheni">github.com/meryemelheni</a></p>
+  </section>
+</main>
+<footer>Meryem Elheni, Tunis</footer>
 <script src="script.js"></script>
 </body>
 </html>
