@@ -21,28 +21,29 @@ Machine virtuelle créée avec 2 cœurs, 6 Go de RAM et 25 Go de disque. Le paqu
 
 Vérification du service dans la VM :
 
-#bash
+```bash
 ip a
 sudo systemctl status ssh
-
+```
 
 Sécurisation : connexion par clé uniquement, mot de passe et accès root désactivés.
 
+```bash
 sudo nano /etc/ssh/sshd_config.d/01-hardening.conf
-
+```
 
 Contenu du fichier :
 
-
+```
 PermitRootLogin no
 PasswordAuthentication no
 PubkeyAuthentication yes
+```
 
-
-
+```bash
 sudo systemctl restart ssh
 sudo sshd -T | grep -i passwordauthentication
-
+```
 
 Résultat attendu : `passwordauthentication no`.
 
@@ -52,31 +53,32 @@ Résultat attendu : `passwordauthentication no`.
 
 Création de la clé (sur Windows) et copie de la clé publique vers la VM :
 
-#powershell
+```powershell
 ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_tp_docker
 type $env:USERPROFILE\.ssh\id_tp_docker.pub | ssh -o PubkeyAuthentication=no meryem@192.168.65.132 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && tr -d '\r' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
 
 Fichier `~/.ssh/config` sur Windows :
 
-
+```
 Host 192.168.65.132
     IdentityFile ~/.ssh/id_tp_docker
     IdentitiesOnly yes
-
+```
 
 Connexion par clé :
 
-#powershell
+```powershell
 ssh meryem@192.168.65.132
-
+```
 
 ![Connexion SSH par clé](screenshots/02-ssh-connexion-cle.png)
 
 Test du refus du mot de passe :
 
-#powershell
+```powershell
 ssh -o PubkeyAuthentication=no meryem@192.168.65.132
-
+```
 
 Résultat : `Permission denied (publickey)`.
 
@@ -86,7 +88,7 @@ Résultat : `Permission denied (publickey)`.
 
 Installation depuis le dépôt officiel de Docker :
 
-#bash
+```bash
 sudo apt update
 sudo apt install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -95,37 +97,37 @@ sudo chmod a+r /etc/apt/keyrings/docker.asc
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
+```
 
 Vérification :
 
-#bash
+```bash
 sudo systemctl status docker
 sudo docker run hello-world
-
+```
 
 ![Docker hello-world](screenshots/04-docker-hello-world.png)
 
 Utilisation de Docker sans `sudo`, puis test avec nginx :
 
-#bash
+```bash
 sudo usermod -aG docker $USER
 docker --version
 docker run -d -p 80:80 --name web nginx
 docker ps
-
+```
 
 Page de nginx ouverte depuis Windows sur `http://192.168.65.132` :
 
 ![Page nginx](screenshots/05-nginx.png)
 
-#bash
+```bash
 docker stop web && docker rm web
-
+```
 
 ## 4. Installation de Jenkins comme service
 
-#bash
+```bash
 sudo apt install -y fontconfig openjdk-21-jre-headless
 sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
 echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
@@ -133,7 +135,7 @@ sudo apt update
 sudo apt install -y jenkins
 sudo systemctl enable --now jenkins
 sudo systemctl status jenkins
-
+```
 
 Le service est `active (running)` et `enabled`.
 
@@ -147,12 +149,12 @@ Tableau de bord ouvert depuis Windows sur `http://192.168.65.132:8080` :
 
 Le CV est composé de `index.html`, `style.css` et `script.js`. Le dossier est géré avec Git :
 
-#powershell
+```powershell
 git init
 git add .
 git commit -m "Premier commit : CV one page"
 git branch -M main
-
+```
 
 ![CV dans le navigateur](screenshots/08-cv-navigateur.png)
 
@@ -160,10 +162,10 @@ git branch -M main
 
 Création d'une clé dédiée à GitHub :
 
-#powershell
+```powershell
 ssh-keygen -t ed25519 -C "elhenimeryem12@gmail.com" -f $env:USERPROFILE\.ssh\id_github
 Get-Content $env:USERPROFILE\.ssh\id_github.pub | Set-Clipboard
-
+```
 
 Ajout de la clé publique dans GitHub, **Settings > SSH and GPG keys > New SSH key**.
 
@@ -171,35 +173,99 @@ Ajout de la clé publique dans GitHub, **Settings > SSH and GPG keys > New SSH k
 
 Bloc ajouté au fichier `~/.ssh/config` :
 
-
+```
 Host github.com
     HostName github.com
     User git
     IdentityFile ~/.ssh/id_github
     IdentitiesOnly yes
-
+```
 
 Test de l'authentification :
 
-#powershell
+```powershell
 ssh -T git@github.com
-
+```
 
 ![Test ssh -T](screenshots/10-ssh-t-github.png)
 
 Configuration du dépôt local pour utiliser SSH, puis envoi du code :
 
-#powershell
+```powershell
 git remote add origin git@github.com:meryemelheni/cv-onepage.git
 git remote -v
 git push -u origin main
-
+```
 
 ![git push](screenshots/11-git-push.png)
-Vérification que le dépôt local utilise SSH :
 
-![git remote -v](screenshots/13-git-remote.png)
+## 7. Évolution du CV vers un DevSecOps Portfolio
 
-Dépôt en ligne sur GitHub :
+Le mini CV est devenu une petite application web d'une seule page, avec les sections **About, Skills, DevSecOps Skills, Projects, Experience et Contact**.
 
-![Dépôt GitHub](screenshots/12-depot-github.png)
+Principales améliorations par rapport au CV :
+
+- une barre de navigation fixe en haut, avec un lien vers chaque section ;
+- six sections au lieu d'une page de présentation unique ;
+- des cartes (grille responsive) pour les outils et les projets ;
+- une frise chronologique pour l'expérience ;
+- les données des outils et des projets séparées de la mise en page, dans des tableaux JavaScript ;
+- un projet prêt à être conteneurisé (Dockerfile et `docker-compose.yml`).
+
+![Portfolio DevSecOps](screenshots/14-portfolio-complet.png)
+
+## 8. Section DevSecOps Skills
+
+Cette section affiche les technologies du projet : Git, Docker, Jenkins, Kubernetes, Ansible, Terraform et Argo CD. Chaque carte indique le rôle de l'outil. La section est visible au milieu de la capture ci-dessous, sous la section Skills.
+
+![Section DevSecOps Skills](screenshots/14-portfolio-complet.png)
+
+## 9. Section Projects générée en JavaScript
+
+Les projets sont décrits dans un tableau d'objets (`projects`). Le script parcourt ce tableau et crée une carte pour chaque objet. Ajouter un projet revient à ajouter un objet au tableau, sans toucher au HTML.
+
+Extrait de `script.js` :
+
+```javascript
+var projects = [
+  { title: 'Serveur Ubuntu 26.04 sécurisé', description: 'VM VMware, accès SSH par clé avec passphrase, mot de passe désactivé.', tech: ['Ubuntu', 'SSH'], link: 'https://github.com/meryemelheni/cv-onepage' },
+  { title: 'Nginx dans Docker', description: 'Conteneur nginx exposé sur un port et testé depuis la machine physique.', tech: ['Docker', 'Nginx'], link: 'https://github.com/meryemelheni/cv-onepage' },
+  { title: 'Serveur Jenkins', description: 'Jenkins installé comme service systemd avec Java 21.', tech: ['Jenkins', 'Java'], link: 'https://github.com/meryemelheni/cv-onepage' },
+  { title: 'DevSecOps Portfolio', description: 'Ce site, dockérisé avec Nginx et déployé avec Docker Compose.', tech: ['Docker Compose', 'JavaScript'], link: 'https://github.com/meryemelheni/cv-onepage' }
+];
+
+var projectBox = document.getElementById('project-list');
+projects.forEach(function (p) {
+  var foot = document.createElement('div');
+  var tech = document.createElement('small');
+  tech.textContent = p.tech.join(', ');
+  var a = document.createElement('a');
+  a.href = p.link;
+  a.textContent = 'Voir le dépôt';
+  foot.appendChild(tech);
+  foot.appendChild(a);
+  projectBox.appendChild(card(p.title, p.description, foot));
+});
+```
+
+Résultat dans le navigateur :
+
+![Projects générés dynamiquement](screenshots/16-projects-dynamiques.png)
+
+## 10. Dockerfile
+
+Contenu du fichier `Dockerfile` :
+
+```dockerfile
+FROM nginx:alpine
+COPY index.html style.css script.js /usr/share/nginx/html/
+EXPOSE 80
+```
+
+Explication :
+
+- `FROM nginx:alpine` : l'image de départ est Nginx sur Alpine Linux, une base légère.
+- `COPY ... /usr/share/nginx/html/` : les trois fichiers du portfolio sont copiés dans le dossier que Nginx sert par défaut.
+- `EXPOSE 80` : l'image indique que Nginx écoute sur le port 80. La publication du port vers la VM se fait avec `-p` ou avec Docker Compose.
+
+Aucune commande de démarrage n'est nécessaire : l'image `nginx` lance déjà Nginx au démarrage du conteneur.
