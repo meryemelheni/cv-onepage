@@ -269,3 +269,90 @@ Explication :
 - `EXPOSE 80` : l'image indique que Nginx écoute sur le port 80. La publication du port vers la VM se fait avec `-p` ou avec Docker Compose.
 
 Aucune commande de démarrage n'est nécessaire : l'image `nginx` lance déjà Nginx au démarrage du conteneur.
+
+## 11. Construction de l'image Docker `cv-docker`
+
+Commande utilisée, depuis le dossier du projet cloné dans la VM :
+
+```bash
+docker build -t cv-docker .
+docker images cv-docker
+```
+
+Le build s'est terminé sans erreur, et l'image `cv-docker:latest` est créée.
+
+![docker build](screenshots/17-docker-build.png)
+
+![docker images](screenshots/17b-docker-images.png)
+
+## 12. Exécution d'un conteneur
+
+Commande utilisée :
+
+```bash
+docker run -d --name cv-docker -p 8081:80 cv-docker
+docker ps
+```
+
+Le port 80 du conteneur est publié sur le port 8081 de la VM. Résultat de `docker ps` :
+
+```
+CONTAINER ID   IMAGE       COMMAND                  CREATED                  STATUS                  PORTS                                     NAMES
+d7180b4acf85   cv-docker   "/docker-entrypoint.…"   Less than a second ago   Up Less than a second   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   cv-docker
+```
+
+![docker run et docker ps](screenshots/18-docker-run.png)
+
+Accès depuis la machine physique sur `http://192.168.65.132:8081` :
+
+![Portfolio sur le port 8081](screenshots/18b-docker-run-navigateur.png)
+
+## 13. Déploiement avec Docker Compose
+
+Contenu de `docker-compose.yml` :
+
+```yaml
+services:
+  portfolio:
+    build: .
+    image: cv-docker
+    container_name: portfolio
+    ports:
+      - "8082:80"
+    restart: unless-stopped
+```
+
+Le conteneur précédent est supprimé avant (`docker stop cv-docker && docker rm cv-docker`). Commandes utilisées :
+
+```bash
+docker compose up -d
+docker compose ps
+```
+
+Résultat de `docker compose ps` :
+
+```
+NAME        IMAGE       COMMAND                  SERVICE     CREATED         STATUS                  PORTS
+portfolio   cv-docker   "/docker-entrypoint.…"   portfolio   1 second ago    Up Less than a second   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
+```
+
+![docker compose up et ps](screenshots/19-docker-compose.png)
+
+Accès depuis la machine physique sur `http://192.168.65.132:8082` :
+
+![Portfolio sur le port 8082](screenshots/19b-docker-compose-navigateur.png)
+
+## 14. Publication sur GitHub via SSH
+
+Commandes Git utilisées, depuis Windows, avec la clé SSH `id_github` :
+
+```powershell
+git add .
+git commit -m "Portfolio DevSecOps, Dockerfile et docker-compose"
+git push
+git remote -v
+```
+
+`git remote -v` confirme que le dépôt utilise SSH (`git@github.com:meryemelheni/cv-onepage.git`). Tous les fichiers du projet se trouvent dans le dossier `cv-onepage` du dépôt.
+
+Lien du dépôt GitHub mis à jour : https://github.com/meryemelheni/cv-onepage
