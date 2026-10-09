@@ -1,38 +1,39 @@
-# Activité de démarrage : Ubuntu Server, SSH, Docker, Jenkins et Git
+# Activité de démarrage : Ubuntu Server, SSH, Docker, Jenkins, Git et Vagrant
 
-Ce dépôt contient un CV One Page (HTML5, CSS3, JavaScript) et le compte rendu du TP.
-Chaque étape liste les commandes exécutées et renvoie vers une capture d'écran du dossier `screenshots/`.
+Ce dépôt contient le DevSecOps Portfolio (HTML5, CSS3, JavaScript) et le compte rendu du TP.
+Pour chaque point : les commandes exécutées, des explications et les captures d'écran du dossier `screenshots/`.
 
-Dépôt : https://github.com/meryemelheni/cv-onepage
+Dépôt GitHub : https://github.com/meryemelheni/cv-onepage
 
 ## Environnement
 
 | Élément | Valeur |
 |---|---|
+| Machine physique | Windows, PowerShell, VS Code, Chrome |
 | Hyperviseur | VMware Workstation Pro |
 | Système invité | Ubuntu Server 26.04 LTS |
+| Ressources de la VM | 2 CPU, 6 Go de RAM, disque de 25 Go |
 | Réseau de la VM | NAT, adresse `192.168.65.132` |
 | Utilisateur de la VM | `meryem` |
-| Machine physique | Windows, PowerShell |
 
 ## 1. Ubuntu Server 26.04 et accès SSH sécurisé
 
-Machine virtuelle créée avec 2 cœurs, 6 Go de RAM et 25 Go de disque. Le paquet OpenSSH server est coché pendant l'installation.
+La VM est créée avec l'ISO `ubuntu-26.04-live-server-amd64.iso`. L'option « Install OpenSSH server » est cochée pendant l'installation.
 
 Vérification du service dans la VM :
 
 ```bash
 ip a
-sudo systemctl status ssh
+systemctl status ssh --no-pager
 ```
 
-Sécurisation : connexion par clé uniquement, mot de passe et accès root désactivés.
+![Service SSH actif](screenshots/01-ssh-status.png)
+
+Sécurisation : la connexion se fait par clé uniquement. Le mot de passe et la connexion en root sont désactivés.
 
 ```bash
 sudo nano /etc/ssh/sshd_config.d/01-hardening.conf
 ```
-
-Contenu du fichier :
 
 ```
 PermitRootLogin no
@@ -45,25 +46,24 @@ sudo systemctl restart ssh
 sudo sshd -T | grep -i passwordauthentication
 ```
 
-Résultat attendu : `passwordauthentication no`.
-
-![Service SSH actif](screenshots/01-ssh-status.png)
+Résultat : `passwordauthentication no`. Le fichier porte le préfixe `01-` pour être lu avant les autres fichiers de configuration.
 
 ## 2. Test de l'accès SSH depuis la machine physique
 
-Création de la clé (sur Windows) et copie de la clé publique vers la VM :
+Création d'une clé dédiée, protégée par une passphrase, et copie de la clé publique dans la VM :
 
 ```powershell
 ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_tp_docker
 type $env:USERPROFILE\.ssh\id_tp_docker.pub | ssh -o PubkeyAuthentication=no meryem@192.168.65.132 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && tr -d '\r' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 ```
 
-Fichier `~/.ssh/config` sur Windows :
+Fichier `~/.ssh/config` sur Windows, pour utiliser cette clé avec la VM :
 
 ```
 Host 192.168.65.132
     IdentityFile ~/.ssh/id_tp_docker
     IdentitiesOnly yes
+    ServerAliveInterval 30
 ```
 
 Connexion par clé :
@@ -99,31 +99,28 @@ sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-Vérification :
+Vérification et utilisation sans `sudo` :
 
 ```bash
 sudo systemctl status docker
-sudo docker run hello-world
+sudo usermod -aG docker $USER
+docker --version
+docker run hello-world
 ```
 
 ![Docker hello-world](screenshots/04-docker-hello-world.png)
 
-Utilisation de Docker sans `sudo`, puis test avec nginx :
+Test avec un serveur web nginx, ouvert depuis Windows sur `http://192.168.65.132` :
 
 ```bash
-sudo usermod -aG docker $USER
-docker --version
 docker run -d -p 80:80 --name web nginx
 docker ps
-```
-
-Page de nginx ouverte depuis Windows sur `http://192.168.65.132` :
-
-![Page nginx](screenshots/05-nginx.png)
-
-```bash
 docker stop web && docker rm web
 ```
+
+![docker ps avec nginx](screenshots/05b-nginx-docker-ps.png)
+
+![Page nginx](screenshots/05-nginx.png)
 
 ## 4. Installation de Jenkins comme service
 
@@ -134,20 +131,20 @@ echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.
 sudo apt update
 sudo apt install -y jenkins
 sudo systemctl enable --now jenkins
-sudo systemctl status jenkins
+systemctl status jenkins --no-pager
 ```
 
-Le service est `active (running)` et `enabled`.
+Le service est `active (running)` et `enabled`, donc il démarre avec la VM.
 
 ![Service Jenkins](screenshots/06-jenkins-status.png)
 
-Tableau de bord ouvert depuis Windows sur `http://192.168.65.132:8080` :
+Tableau de bord ouvert depuis la machine physique sur `http://192.168.65.132:8080` :
 
 ![Tableau de bord Jenkins](screenshots/07-jenkins-dashboard.png)
 
 ## 5. CV One Page avec Git
 
-Le CV est composé de `index.html`, `style.css` et `script.js`. Le dossier est géré avec Git :
+Le CV (`index.html`, `style.css`, `script.js`) est géré avec Git :
 
 ```powershell
 git init
@@ -160,14 +157,14 @@ git branch -M main
 
 ## 6. Push GitHub via SSH
 
-Création d'une clé dédiée à GitHub :
+Création d'une clé dédiée à GitHub et copie de la clé publique :
 
 ```powershell
 ssh-keygen -t ed25519 -C "elhenimeryem12@gmail.com" -f $env:USERPROFILE\.ssh\id_github
 Get-Content $env:USERPROFILE\.ssh\id_github.pub | Set-Clipboard
 ```
 
-Ajout de la clé publique dans GitHub, **Settings > SSH and GPG keys > New SSH key**.
+Ajout de la clé publique dans GitHub : **Settings > SSH and GPG keys > New SSH key**.
 
 ![Clé SSH dans GitHub](screenshots/09-github-cle-ssh.png)
 
@@ -187,7 +184,7 @@ Test de l'authentification :
 ssh -T git@github.com
 ```
 
-![Test ssh -T](screenshots/10-ssh-t-github.png)
+![ssh -T git@github.com](screenshots/10-ssh-t-github.png)
 
 Configuration du dépôt local pour utiliser SSH, puis envoi du code :
 
@@ -197,32 +194,36 @@ git remote -v
 git push -u origin main
 ```
 
+![git remote -v](screenshots/13-git-remote.png)
+
 ![git push](screenshots/11-git-push.png)
 
-## 7. Évolution du CV vers un DevSecOps Portfolio
+![Dépôt en ligne](screenshots/12-depot-github.png)
 
-Le mini CV est devenu une petite application web d'une seule page, avec les sections **About, Skills, DevSecOps Skills, Projects, Experience et Contact**.
+## 7. Évolution vers un DevSecOps Portfolio
 
-Principales améliorations par rapport au CV :
+Le CV est devenu une petite application web d'une page, avec les sections **About, Skills, DevSecOps Skills, Projects, Experience et Contact**.
 
-- une barre de navigation fixe en haut, avec un lien vers chaque section ;
+Principales améliorations :
+
+- une barre de navigation fixe, avec un lien vers chaque section ;
 - six sections au lieu d'une page de présentation unique ;
 - des cartes (grille responsive) pour les outils et les projets ;
 - une frise chronologique pour l'expérience ;
 - les données des outils et des projets séparées de la mise en page, dans des tableaux JavaScript ;
-- un projet prêt à être conteneurisé (Dockerfile et `docker-compose.yml`).
+- un projet prêt à être conteneurisé (`Dockerfile` et `docker-compose.yml`).
 
 ![Portfolio DevSecOps](screenshots/14-portfolio-complet.png)
 
 ## 8. Section DevSecOps Skills
 
-Cette section affiche les technologies du projet : Git, Docker, Jenkins, Kubernetes, Ansible, Terraform et Argo CD. Chaque carte indique le rôle de l'outil. La section est visible au milieu de la capture ci-dessous, sous la section Skills.
+La section affiche les technologies du projet : Git, Docker, Jenkins, Kubernetes, Ansible, Terraform et Argo CD. Chaque carte indique le rôle de l'outil. Elle se trouve au milieu de la capture ci-dessous, sous la section Skills.
 
 ![Section DevSecOps Skills](screenshots/14-portfolio-complet.png)
 
 ## 9. Section Projects générée en JavaScript
 
-Les projets sont décrits dans un tableau d'objets (`projects`). Le script parcourt ce tableau et crée une carte pour chaque objet. Ajouter un projet revient à ajouter un objet au tableau, sans toucher au HTML.
+Les projets sont décrits dans un tableau d'objets. Le script parcourt ce tableau et crée une carte par objet. Ajouter un projet revient à ajouter un objet au tableau, sans toucher au HTML.
 
 Extrait de `script.js` :
 
@@ -254,32 +255,26 @@ Résultat dans le navigateur :
 
 ## 10. Dockerfile
 
-Contenu du fichier `Dockerfile` :
-
 ```dockerfile
 FROM nginx:alpine
 COPY index.html style.css script.js /usr/share/nginx/html/
 EXPOSE 80
 ```
 
-Explication :
+- `FROM nginx:alpine` : image de départ légère, Nginx sur Alpine Linux.
+- `COPY` : copie des trois fichiers du portfolio dans le dossier servi par Nginx.
+- `EXPOSE 80` : indique le port d'écoute. La publication vers la VM se fait avec `-p` ou avec Docker Compose.
 
-- `FROM nginx:alpine` : l'image de départ est Nginx sur Alpine Linux, une base légère.
-- `COPY ... /usr/share/nginx/html/` : les trois fichiers du portfolio sont copiés dans le dossier que Nginx sert par défaut.
-- `EXPOSE 80` : l'image indique que Nginx écoute sur le port 80. La publication du port vers la VM se fait avec `-p` ou avec Docker Compose.
+Aucune commande de démarrage n'est nécessaire : l'image `nginx` lance déjà Nginx.
 
-Aucune commande de démarrage n'est nécessaire : l'image `nginx` lance déjà Nginx au démarrage du conteneur.
-
-## 11. Construction de l'image Docker `cv-docker`
-
-Commande utilisée, depuis le dossier du projet cloné dans la VM :
+## 11. Construction de l'image `cv-docker`
 
 ```bash
+git clone https://github.com/meryemelheni/cv-onepage.git
+cd cv-onepage/cv-onepage
 docker build -t cv-docker .
 docker images cv-docker
 ```
-
-Le build s'est terminé sans erreur, et l'image `cv-docker:latest` est créée.
 
 ![docker build](screenshots/17-docker-build.png)
 
@@ -287,14 +282,10 @@ Le build s'est terminé sans erreur, et l'image `cv-docker:latest` est créée.
 
 ## 12. Exécution d'un conteneur
 
-Commande utilisée :
-
 ```bash
 docker run -d --name cv-docker -p 8081:80 cv-docker
 docker ps
 ```
-
-Le port 80 du conteneur est publié sur le port 8081 de la VM. Résultat de `docker ps` :
 
 ```
 CONTAINER ID   IMAGE       COMMAND                  CREATED                  STATUS                  PORTS                                     NAMES
@@ -322,14 +313,12 @@ services:
     restart: unless-stopped
 ```
 
-Le conteneur précédent est supprimé avant (`docker stop cv-docker && docker rm cv-docker`). Commandes utilisées :
+Le conteneur précédent est supprimé avant (`docker stop cv-docker && docker rm cv-docker`).
 
 ```bash
 docker compose up -d
 docker compose ps
 ```
-
-Résultat de `docker compose ps` :
 
 ```
 NAME        IMAGE       COMMAND                  SERVICE     CREATED         STATUS                  PORTS
@@ -344,7 +333,7 @@ Accès depuis la machine physique sur `http://192.168.65.132:8082` :
 
 ## 14. Publication sur GitHub via SSH
 
-Commandes Git utilisées, depuis Windows, avec la clé SSH `id_github` :
+Commandes Git utilisées, depuis Windows, avec la clé `id_github` :
 
 ```powershell
 git add .
@@ -353,6 +342,129 @@ git push
 git remote -v
 ```
 
-`git remote -v` confirme que le dépôt utilise SSH (`git@github.com:meryemelheni/cv-onepage.git`). Tous les fichiers du projet se trouvent dans le dossier `cv-onepage` du dépôt.
+`git remote -v` confirme que le dépôt utilise SSH (`git@github.com:meryemelheni/cv-onepage.git`). Tous les fichiers du projet sont dans le dossier `cv-onepage` du dépôt.
 
 Lien du dépôt GitHub mis à jour : https://github.com/meryemelheni/cv-onepage
+
+## 15. Vagrant : création automatique d'une VM Ubuntu Server
+
+### Vérification des ressources
+
+Avant de créer une VM dans la VM, vérification de la mémoire, du processeur et de l'espace disque :
+
+```bash
+df -h /
+free -h
+nproc
+```
+
+![Ressources de la VM](screenshots/20-ressources-vm.png)
+
+Le disque `/` ne faisait que 12 Go. Le groupe de volumes avait 11,5 Go libres, que j'ai ajoutés au volume logique :
+
+```bash
+sudo vgs
+sudo lvextend -r -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+df -h /
+```
+
+![Disque agrandi](screenshots/21-disque-agrandi.png)
+
+### Virtualisation imbriquée
+
+Vagrant crée une VM dans la VM VMware. Il faut donc exposer la virtualisation du processeur :
+
+- sous VMware, **Settings > Processors > Virtualize Intel VT-x/EPT or AMD-V/RVI** ;
+- sous Windows, le lancement de l'hyperviseur a été désactivé : `bcdedit /set hypervisorlaunchtype off`, puis redémarrage.
+
+Vérification dans la VM (résultat supérieur à 0) :
+
+```bash
+egrep -c '(vmx|svm)' /proc/cpuinfo
+```
+
+![Virtualisation imbriquée](screenshots/22-virtualisation-imbriquee.png)
+
+### Installation de KVM et libvirt
+
+Vagrant a besoin d'un fournisseur de machines virtuelles. J'ai choisi KVM/libvirt, intégré au noyau Linux :
+
+```bash
+sudo apt install -y qemu-system-x86 libvirt-daemon-system libvirt-clients libvirt-dev cpu-checker build-essential ruby-dev libxml2-dev libxslt1-dev zlib1g-dev pkg-config
+sudo adduser meryem libvirt
+sudo adduser meryem kvm
+kvm-ok
+```
+
+![kvm-ok](screenshots/23-kvm-ok.png)
+
+### Installation de Vagrant
+
+HashiCorp ne publie pas encore de paquets pour la version 26.04 : le dépôt `noble` (24.04) est utilisé.
+
+```bash
+wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update
+sudo apt install -y vagrant
+vagrant --version
+vagrant plugin install vagrant-libvirt
+```
+
+![Version de Vagrant](screenshots/24-vagrant-version.png)
+
+### Vagrantfile
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2204"
+  config.vm.hostname = "vagrant-ubuntu"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.provider :libvirt do |lv|
+    lv.memory = 1024
+    lv.cpus = 1
+  end
+end
+```
+
+Le fichier décrit une VM Ubuntu Server 22.04 avec 1 Go de RAM et 1 processeur. Le dossier partagé est désactivé pour éviter une configuration réseau supplémentaire avec libvirt.
+
+### Création de la VM
+
+La commande est lancée dans une session `tmux`, pour qu'une coupure de la connexion SSH n'interrompe pas le téléchargement de la box :
+
+```bash
+tmux new -s vagrant
+cd ~/vagrant-ubuntu
+vagrant up --provider=libvirt
+```
+
+![vagrant up](screenshots/25-vagrant-up.png)
+
+## 16. Connexion avec `vagrant ssh`
+
+Depuis la VM, connexion à la VM créée par Vagrant :
+
+```bash
+cd ~/vagrant-ubuntu
+vagrant status
+vagrant ssh
+```
+
+![vagrant ssh](screenshots/26-vagrant-ssh.png)
+
+### Comparaison avec la création manuelle
+
+| Critère | Création manuelle (VMware) | Vagrant |
+|---|---|---|
+| Procédure | assistant graphique, installeur Ubuntu, réponses à chaque écran | un fichier `Vagrantfile` et la commande `vagrant up` |
+| Reproductibilité | difficile : les réglages dépendent de ce qu'on clique | identique à chaque exécution |
+| Durée | longue, avec de nombreuses étapes à la main | rapide une fois la box téléchargée |
+| Traçabilité | aucune trace des choix | le `Vagrantfile` se versionne avec Git |
+| Accès | clé SSH à configurer à la main | `vagrant ssh`, clé générée automatiquement |
+| Suppression et recréation | longues | `vagrant destroy` puis `vagrant up` |
+| Prérequis | un hyperviseur | un hyperviseur, un fournisseur, une box et la virtualisation imbriquée |
+| Contrôle | total, avec interface graphique | limité à ce que décrit le fichier |
+
+La création manuelle aide à comprendre chaque étape de l'installation. Vagrant convient mieux dès qu'il faut recréer la même machine plusieurs fois, la partager ou l'inclure dans un projet géré avec Git.
