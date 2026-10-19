@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Récupération du code source depuis GitHub...'
+                checkout scm
+            }
+        }
+        
+        stage('Install') {
+            steps {
+                echo 'Installation des dépendances Next.js...'
+                dir('cv-onepage/portfolio-nextjs') {
+                    sh 'npm ci'
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'Construction de l\'application Next.js...'
+                dir('cv-onepage/portfolio-nextjs') {
+                    sh 'npm run build'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline terminé.'
+        }
+    }
+}

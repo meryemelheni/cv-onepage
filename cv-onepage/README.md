@@ -468,3 +468,12 @@ vagrant ssh
 | Contrôle | total, avec interface graphique | limité à ce que décrit le fichier |
 
 La création manuelle aide à comprendre chaque étape de l'installation. Vagrant convient mieux dès qu'il faut recréer la même machine plusieurs fois, la partager ou l'inclure dans un projet géré avec Git.
+
+
+## 18. Migration vers Next.js
+
+Le portfolio a été migré vers une application Next.js 16 (App Router), en conservant le design et les sections de la version HTML/CSS/JS.
+
+Commande de création du projet (exécutée dans le dossier `cv-onepage/cv-onepage`) :
+```bash
+npx create-next-app@latest portfolio-nextjs --js --app --no-tailwind --no-src-dir --use-npm --disable-git
