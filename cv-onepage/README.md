@@ -475,5 +475,115 @@ La création manuelle aide à comprendre chaque étape de l'installation. Vagran
 Le portfolio a été migré vers une application Next.js 16 (App Router), en conservant le design et les sections de la version HTML/CSS/JS.
 
 Commande de création du projet (exécutée dans le dossier `cv-onepage/cv-onepage`) :
-```bash
 npx create-next-app@latest portfolio-nextjs --js --app --no-tailwind --no-src-dir --use-npm --disable-git
+
+Capture de l'application Next.js en local :
+![Application Next.js](screenshots/a2-18-accueil.png)
+
+## 19. Composants réutilisables
+
+Les principales parties du portfolio ont été découpées en composants React dans le dossier `components/`.
+Structure des composants :
+- `Header.js` : barre de navigation
+- `About.js` : section de présentation
+- `Skills.js` : compétences techniques et DevSecOps
+- `Projects.js` : liste des projets
+- `Experience.js` : frise chronologique
+- `Contact.js` : coordonnées
+- `Footer.js` : pied de page
+
+Capture de la structure :
+![Structure des composants](screenshots/a2-19-composants.png)
+
+## 20. Fichiers de données
+
+Les informations des projets et des compétences ont été extraites dans des fichiers séparés dans le dossier `data/` (`projects.js` et `skills.js`). Cela permet de modifier le contenu sans toucher aux composants.
+
+Exemple de données utilisées (`data/projects.js`) :
+{
+  slug: 'serveur-ubuntu-securise',
+  title: 'Serveur Ubuntu 26.04 sécurisé',
+  description: 'VM VMware, accès SSH par clé avec passphrase, mot de passe désactivé.',
+  tech: ['Ubuntu', 'SSH'],
+  details: [
+    'Installation d\'Ubuntu Server 26.04 sous VMware.',
+    'Connexion par clé uniquement, mot de passe et root désactivés.',
+    'Test depuis la machine physique avec une clé protégée par passphrase.'
+  ],
+  link: 'https://github.com/meryemelheni/cv-onepage'
+}
+
+Capture du fichier de données :
+![Fichier de données](screenshots/a2-20-donnees.png)
+
+## 21. Pages dédiées aux projets
+
+Une page listant tous les projets et une page de détail par projet ont été ajoutées. La génération des pages de détail utilise `generateStaticParams`.
+
+- `/projects` : liste des projets
+- `/projects/[slug]` : détail d'un projet (ex: `/projects/serveur-ubuntu-securise`)
+
+Capture de la page `/projects` :
+![Page Projets](screenshots/a2-21-projets.png)
+
+Capture de la page de détail d'un projet :
+![Détail d'un projet](screenshots/a2-21-detail-projet.png)
+
+## 22. Premier pipeline Jenkins
+
+Un job Jenkins de type "Pipeline script from SCM" a été créé. Il récupère automatiquement le dépôt GitHub `cv-onepage`, puis exécute le fichier `Jenkinsfile` situé dans `cv-onepage/portfolio-nextjs/`.
+
+Contenu du `Jenkinsfile` :
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Récupération du code source depuis GitHub...'
+                checkout scm
+            }
+        }
+        
+        stage('Install') {
+            steps {
+                echo 'Installation des dépendances Next.js...'
+                dir('cv-onepage/portfolio-nextjs') {
+                    sh 'npm ci'
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'Construction de l\'application Next.js...'
+                dir('cv-onepage/portfolio-nextjs') {
+                    sh 'npm run build'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline terminé.'
+        }
+    }
+}
+
+Capture du pipeline exécuté avec succès :
+![Pipeline Jenkins](screenshots/a2-22-pipeline.png)
+
+## 23. Installation des dépendances (Stage Install)
+
+Le pipeline contient une étape `Install` qui exécute `npm ci` dans le dossier du projet Next.js. Cette commande installe les dépendances exactes listées dans le fichier `package-lock.json`, garantissant un build reproductible.
+
+Capture du stage Install :
+![Stage Install](screenshots/a2-23-install.png)
+
+## 24. Construction de l'application (Stage Build)
+
+L'étape `Build` exécute `npm run build`. Next.js compile l'application en mode production et génère les pages statiques, y compris les pages de détail des projets grâce à `generateStaticParams`.
+
+Capture du résultat du build :
+![Stage Build](screenshots/a2-24-build.png)
