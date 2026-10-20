@@ -1,0 +1,18 @@
+services:
+  api:
+    build: ./api
+    container_name: devsecops-api
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  frontend:
+    build: ./portfolio-nextjs
+    container_name: devsecops-portfolio
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://api:3001
+    depends_on:
+      - api
+    restart: unless-stopped

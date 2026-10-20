@@ -587,3 +587,130 @@ L'étape `Build` exécute `npm run build`. Next.js compile l'application en mode
 
 Capture du résultat du build :
 ![Stage Build](screenshots/a2-24-build.png)
+
+## 25. Installation d'Ansible sur une VM d'administration
+
+Ansible a été installé sur la VM Vagrant (`vagrant-ubuntu`), qui sert de machine d'administration. L'installation s'est faite via `pip` pour avoir une version récente compatible avec Python 3.12.
+
+Commandes :
+sudo apt update
+sudo apt install -y python3-pip
+pip3 install --user ansible
+
+## 26. Fichier inventory et test de communication
+
+Le fichier `inventory` contient l'adresse de la VM cible (`ubuntuserver`) :
+
+Fichier inventory :
+[serveurs]
+ubuntuserver ansible_host=192.168.65.132 ansible_user=meryem ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ansible
+
+Test de communication :
+ansible all -m ping -i inventory
+
+Résultat : SUCCESS avec "ping": "pong".
+
+![Test Ansible ping](screenshots/a3-27-playbook-curl.png)
+
+## 27. Premier playbook Ansible (installation de curl)
+
+Le playbook `install_curl.yml` installe le package `curl`.
+
+Exécution du playbook :
+ansible-playbook -i inventory install_curl.yml
+
+![Playbook curl](screenshots/a3-27-playbook-curl.png)
+
+## 28. Playbook Ansible pour installer Docker
+
+Le playbook `install_docker.yml` installe Docker et ses dépendances.
+
+Résultat après exécution :
+docker --version
+Docker version 29.8.1, build 4a63305
+
+![Playbook Docker](screenshots/a3-28-playbook-docker.png)
+
+## 29. Création de l'API Node.js / Express
+
+L'API se trouve dans le dossier `api/`. Structure :
+- `api/server.js` : serveur Express
+- `api/package.json` : dépendances (`express`, `cors`)
+
+Lancement : node server.js
+
+![API démarrée](screenshots/a3-29-api-demarree.png)
+![Structure API](screenshots/a3-29-structure-api.png)
+
+## 30. Route GET /api/health
+
+Retourne l'état de l'API :
+{"status":"OK","message":"L'API fonctionne correctement"}
+
+![Health](screenshots/a3-30-api-health.png)
+
+## 31. Route GET /api/profile
+
+Retourne les informations du portfolio :
+![Profile](screenshots/a3-31-api-profile.png)
+
+## 32. Route GET /api/projects
+
+Retourne la liste des projets :
+![Projects](screenshots/a3-32-api-projects.png)
+
+## 33. Route GET /api/skills
+
+Retourne la liste des compétences :
+![Skills](screenshots/a3-33-api-skills.png)
+
+## 34. Frontend Next.js connecté à l'API (Projets)
+
+Le composant `components/Projects.js` a été modifié pour récupérer les projets depuis l'API Express via `fetch()`.
+
+![Frontend connecté à l'API](screenshots/a3-34-35-frontend-api.png)
+
+## 35. Frontend Next.js connecté à l'API (Compétences)
+
+Même principe pour le composant `components/Skills.js`. Les données viennent désormais de l'API.
+
+## 36. Variable d'environnement API_URL
+
+L'URL de l'API est configurée via la variable `API_URL` (dans `.env.local`). Il ne faut pas la coder en dur car elle change entre le développement local (`http://localhost:3001`) et la production (`http://api:3001` dans Docker). Cela permet de déployer la même application dans différents environnements sans modifier le code.
+
+## 37. Fichier .env.example
+
+Contenu :
+API_URL=http://localhost:3001
+
+## 38. Dockerfile pour le frontend Next.js
+
+Le `Dockerfile` utilise une construction multi-stage pour optimiser l'image. Il compile le code avec Node.js puis copie le résultat dans une image légère.
+
+## 39. Dockerfile pour l'API Express
+
+Le `Dockerfile` de l'API installe les dépendances de production et lance `node server.js`.
+
+## 40. Construction des images Docker
+
+Commande utilisée :
+docker compose -f docker-compose.activite3.yml build
+
+![Build des images](screenshots/a3-40-docker-images.png)
+
+## 41. Fichier Docker Compose (Frontend + API)
+
+Le fichier `docker-compose.activite3.yml` déclare les deux services. Le frontend utilise la variable `API_URL=http://api:3001` pour communiquer avec l'API via le réseau Docker.
+
+Lancement et vérification :
+docker compose -f docker-compose.activite3.yml up -d
+docker compose -f docker-compose.activite3.yml ps
+
+![Docker compose up](screenshots/a3-41-docker-compose-up.png)
+![Docker compose ps](screenshots/a3-41-docker-compose-ps.png)
+
+## 42. Communication Frontend / API via Docker Compose
+
+Le frontend communique avec l'API à travers le réseau Docker Compose (en utilisant le nom de service `api`). Le portfolio affiche les données fournies par l'API.
+
+![Portfolio avec Docker Compose](screenshots/a3-42-portfolio-compose.png)
