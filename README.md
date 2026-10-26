@@ -1,7 +1,7 @@
 # Activité de démarrage : Ubuntu Server, SSH, Docker, Jenkins, Git et Vagrant
 
 Ce dépôt contient le DevSecOps Portfolio (HTML5, CSS3, JavaScript) et le compte rendu du TP.
-Pour chaque point : les commandes exécutées, des explications et les captures d'écran du dossier `screenshots/`.
+Pour chaque point : les commandes exécutées, des explications et les captures d'écran du dossier `cv-onepage/screenshots/`.
 
 Dépôt GitHub : https://github.com/meryemelheni/cv-onepage
 # Activité 1 : Ubuntu Server, SSH, Docker, Jenkins, Git et Vagrant
@@ -27,7 +27,7 @@ ip a
 systemctl status ssh --no-pager
 ```
 
-![Service SSH actif](screenshots/01-ssh-status.png)
+![Service SSH actif](cv-onepage/screenshots/01-ssh-status.png)
 
 Sécurisation : la connexion se fait par clé uniquement. Le mot de passe et la connexion en root sont désactivés.
 
@@ -72,7 +72,7 @@ Connexion par clé :
 ssh meryem@192.168.65.132
 ```
 
-![Connexion SSH par clé](screenshots/02-ssh-connexion-cle.png)
+![Connexion SSH par clé](cv-onepage/screenshots/02-ssh-connexion-cle.png)
 
 Test du refus du mot de passe :
 
@@ -82,7 +82,7 @@ ssh -o PubkeyAuthentication=no meryem@192.168.65.132
 
 Résultat : `Permission denied (publickey)`.
 
-![Mot de passe refusé](screenshots/03-mot-de-passe-refuse.png)
+![Mot de passe refusé](cv-onepage/screenshots/03-mot-de-passe-refuse.png)
 
 ## 3. Installation de Docker sur la VM
 
@@ -108,7 +108,7 @@ docker --version
 docker run hello-world
 ```
 
-![Docker hello-world](screenshots/04-docker-hello-world.png)
+![Docker hello-world](cv-onepage/screenshots/04-docker-hello-world.png)
 
 Test avec un serveur web nginx, ouvert depuis Windows sur `http://192.168.65.132` :
 
@@ -118,9 +118,9 @@ docker ps
 docker stop web && docker rm web
 ```
 
-![docker ps avec nginx](screenshots/05b-nginx-docker-ps.png)
+![docker ps avec nginx](cv-onepage/screenshots/05b-nginx-docker-ps.png)
 
-![Page nginx](screenshots/05-nginx.png)
+![Page nginx](cv-onepage/screenshots/05-nginx.png)
 
 ## 4. Installation de Jenkins comme service
 
@@ -136,11 +136,11 @@ systemctl status jenkins --no-pager
 
 Le service est `active (running)` et `enabled`, donc il démarre avec la VM.
 
-![Service Jenkins](screenshots/06-jenkins-status.png)
+![Service Jenkins](cv-onepage/screenshots/06-jenkins-status.png)
 
 Tableau de bord ouvert depuis la machine physique sur `http://192.168.65.132:8080` :
 
-![Tableau de bord Jenkins](screenshots/07-jenkins-dashboard.png)
+![Tableau de bord Jenkins](cv-onepage/screenshots/07-jenkins-dashboard.png)
 
 ## 5. CV One Page avec Git
 
@@ -153,7 +153,7 @@ git commit -m "Premier commit : CV one page"
 git branch -M main
 ```
 
-![CV dans le navigateur](screenshots/08-cv-navigateur.png)
+![CV dans le navigateur](cv-onepage/screenshots/08-cv-navigateur.png)
 
 ## 6. Push GitHub via SSH
 
@@ -166,7 +166,7 @@ Get-Content $env:USERPROFILE\.ssh\id_github.pub | Set-Clipboard
 
 Ajout de la clé publique dans GitHub : **Settings > SSH and GPG keys > New SSH key**.
 
-![Clé SSH dans GitHub](screenshots/09-github-cle-ssh.png)
+![Clé SSH dans GitHub](cv-onepage/screenshots/09-github-cle-ssh.png)
 
 Bloc ajouté au fichier `~/.ssh/config` :
 
@@ -184,7 +184,7 @@ Test de l'authentification :
 ssh -T git@github.com
 ```
 
-![ssh -T git@github.com](screenshots/10-ssh-t-github.png)
+![ssh -T git@github.com](cv-onepage/screenshots/10-ssh-t-github.png)
 
 Configuration du dépôt local pour utiliser SSH, puis envoi du code :
 
@@ -194,11 +194,11 @@ git remote -v
 git push -u origin main
 ```
 
-![git remote -v](screenshots/13-git-remote.png)
+![git remote -v](cv-onepage/screenshots/13-git-remote.png)
 
-![git push](screenshots/11-git-push.png)
+![git push](cv-onepage/screenshots/11-git-push.png)
 
-![Dépôt en ligne](screenshots/12-depot-github.png)
+![Dépôt en ligne](cv-onepage/screenshots/12-depot-github.png)
 
 ## 7. Évolution vers un DevSecOps Portfolio
 
@@ -213,13 +213,13 @@ Principales améliorations :
 - les données des outils et des projets séparées de la mise en page, dans des tableaux JavaScript ;
 - un projet prêt à être conteneurisé (`Dockerfile` et `docker-compose.yml`).
 
-![Portfolio DevSecOps](screenshots/14-portfolio-complet.png)
+![Portfolio DevSecOps](cv-onepage/screenshots/14-portfolio-complet.png)
 
 ## 8. Section DevSecOps Skills
 
 La section affiche les technologies du projet : Git, Docker, Jenkins, Kubernetes, Ansible, Terraform et Argo CD. Chaque carte indique le rôle de l'outil. Elle se trouve au milieu de la capture ci-dessous, sous la section Skills.
 
-![Section DevSecOps Skills](screenshots/14-portfolio-complet.png)
+![Section DevSecOps Skills](cv-onepage/screenshots/14-portfolio-complet.png)
 
 ## 9. Section Projects générée en JavaScript
 
@@ -251,7 +251,7 @@ projects.forEach(function (p) {
 
 Résultat dans le navigateur :
 
-![Projects générés dynamiquement](screenshots/16-projects-dynamiques.png)
+![Projects générés dynamiquement](cv-onepage/screenshots/16-projects-dynamiques.png)
 
 ## 10. Dockerfile
 
@@ -276,9 +276,9 @@ docker build -t cv-docker .
 docker images cv-docker
 ```
 
-![docker build](screenshots/17-docker-build.png)
+![docker build](cv-onepage/screenshots/17-docker-build.png)
 
-![docker images](screenshots/17b-docker-images.png)
+![docker images](cv-onepage/screenshots/17b-docker-images.png)
 
 ## 12. Exécution d'un conteneur
 
@@ -292,11 +292,11 @@ CONTAINER ID   IMAGE       COMMAND                  CREATED                  STA
 d7180b4acf85   cv-docker   "/docker-entrypoint.…"   Less than a second ago   Up Less than a second   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   cv-docker
 ```
 
-![docker run et docker ps](screenshots/18-docker-run.png)
+![docker run et docker ps](cv-onepage/screenshots/18-docker-run.png)
 
 Accès depuis la machine physique sur `http://192.168.65.132:8081` :
 
-![Portfolio sur le port 8081](screenshots/18b-docker-run-navigateur.png)
+![Portfolio sur le port 8081](cv-onepage/screenshots/18b-docker-run-navigateur.png)
 
 ## 13. Déploiement avec Docker Compose
 
@@ -325,11 +325,11 @@ NAME        IMAGE       COMMAND                  SERVICE     CREATED         STA
 portfolio   cv-docker   "/docker-entrypoint.…"   portfolio   1 second ago    Up Less than a second   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
 ```
 
-![docker compose up et ps](screenshots/19-docker-compose.png)
+![docker compose up et ps](cv-onepage/screenshots/19-docker-compose.png)
 
 Accès depuis la machine physique sur `http://192.168.65.132:8082` :
 
-![Portfolio sur le port 8082](screenshots/19b-docker-compose-navigateur.png)
+![Portfolio sur le port 8082](cv-onepage/screenshots/19b-docker-compose-navigateur.png)
 
 ## 14. Publication sur GitHub via SSH
 
@@ -358,7 +358,7 @@ free -h
 nproc
 ```
 
-![Ressources de la VM](screenshots/20-ressources-vm.png)
+![Ressources de la VM](cv-onepage/screenshots/20-ressources-vm.png)
 
 Le disque `/` ne faisait que 12 Go. Le groupe de volumes avait 11,5 Go libres, que j'ai ajoutés au volume logique :
 
@@ -368,7 +368,7 @@ sudo lvextend -r -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
 df -h /
 ```
 
-![Disque agrandi](screenshots/21-disque-agrandi.png)
+![Disque agrandi](cv-onepage/screenshots/21-disque-agrandi.png)
 
 ### Virtualisation imbriquée
 
@@ -383,7 +383,7 @@ Vérification dans la VM (résultat supérieur à 0) :
 egrep -c '(vmx|svm)' /proc/cpuinfo
 ```
 
-![Virtualisation imbriquée](screenshots/22-virtualisation-imbriquee.png)
+![Virtualisation imbriquée](cv-onepage/screenshots/22-virtualisation-imbriquee.png)
 
 ### Installation de KVM et libvirt
 
@@ -396,7 +396,7 @@ sudo adduser meryem kvm
 kvm-ok
 ```
 
-![kvm-ok](screenshots/23-kvm-ok.png)
+![kvm-ok](cv-onepage/screenshots/23-kvm-ok.png)
 
 ### Installation de Vagrant
 
@@ -411,7 +411,7 @@ vagrant --version
 vagrant plugin install vagrant-libvirt
 ```
 
-![Version de Vagrant](screenshots/24-vagrant-version.png)
+![Version de Vagrant](cv-onepage/screenshots/24-vagrant-version.png)
 
 ### Vagrantfile
 
@@ -440,7 +440,7 @@ cd ~/vagrant-ubuntu
 vagrant up --provider=libvirt
 ```
 
-![vagrant up](screenshots/25-vagrant-up.png)
+![vagrant up](cv-onepage/screenshots/25-vagrant-up.png)
 
 ## 16. Connexion avec `vagrant ssh`
 
@@ -452,7 +452,7 @@ vagrant status
 vagrant ssh
 ```
 
-![vagrant ssh](screenshots/26-vagrant-ssh.png)
+![vagrant ssh](cv-onepage/screenshots/26-vagrant-ssh.png)
 
 ### Comparaison avec la création manuelle
 
@@ -478,7 +478,7 @@ Commande de création du projet (exécutée dans le dossier `cv-onepage/cv-onepa
 npx create-next-app@latest portfolio-nextjs --js --app --no-tailwind --no-src-dir --use-npm --disable-git
 
 Capture de l'application Next.js en local :
-![Application Next.js](screenshots/a2-18-accueil.png)
+![Application Next.js](cv-onepage/screenshots/a2-18-accueil.png)
 
 ## 19. Composants réutilisables
 
@@ -493,7 +493,7 @@ Structure des composants :
 - `Footer.js` : pied de page
 
 Capture de la structure :
-![Structure des composants](screenshots/a2-19-composants.png)
+![Structure des composants](cv-onepage/screenshots/a2-19-composants.png)
 
 ## 20. Fichiers de données
 
@@ -514,7 +514,7 @@ Exemple de données utilisées (`data/projects.js`) :
 }
 
 Capture du fichier de données :
-![Fichier de données](screenshots/a2-20-donnees.png)
+![Fichier de données](cv-onepage/screenshots/a2-20-donnees.png)
 
 ## 21. Pages dédiées aux projets
 
@@ -524,10 +524,10 @@ Une page listant tous les projets et une page de détail par projet ont été aj
 - `/projects/[slug]` : détail d'un projet (ex: `/projects/serveur-ubuntu-securise`)
 
 Capture de la page `/projects` :
-![Page Projets](screenshots/a2-21-projets.png)
+![Page Projets](cv-onepage/screenshots/a2-21-projets.png)
 
 Capture de la page de détail d'un projet :
-![Détail d'un projet](screenshots/a2-21-detail-projet.png)
+![Détail d'un projet](cv-onepage/screenshots/a2-21-detail-projet.png)
 
 ## 22. Premier pipeline Jenkins
 
@@ -572,21 +572,21 @@ pipeline {
 }
 
 Capture du pipeline exécuté avec succès :
-![Pipeline Jenkins](screenshots/a2-22-pipeline.png)
+![Pipeline Jenkins](cv-onepage/screenshots/a2-22-pipeline.png)
 
 ## 23. Installation des dépendances (Stage Install)
 
 Le pipeline contient une étape `Install` qui exécute `npm ci` dans le dossier du projet Next.js. Cette commande installe les dépendances exactes listées dans le fichier `package-lock.json`, garantissant un build reproductible.
 
 Capture du stage Install :
-![Stage Install](screenshots/a2-23-install.png)
+![Stage Install](cv-onepage/screenshots/a2-23-install.png)
 
 ## 24. Construction de l'application (Stage Build)
 
 L'étape `Build` exécute `npm run build`. Next.js compile l'application en mode production et génère les pages statiques, y compris les pages de détail des projets grâce à `generateStaticParams`.
 
 Capture du résultat du build :
-![Stage Build](screenshots/a2-24-build.png)
+![Stage Build](cv-onepage/screenshots/a2-24-build.png)
 
 # Activité 3 : Ansible, API Express et Dockerisation
 ## 25. Installation d'Ansible sur une VM d'administration
@@ -611,7 +611,7 @@ ansible all -m ping -i inventory
 
 Résultat : SUCCESS avec "ping": "pong".
 
-![Test Ansible ping](screenshots/a3-27-playbook-curl.png)
+![Test Ansible ping](cv-onepage/screenshots/a3-27-playbook-curl.png)
 
 ## 27. Premier playbook Ansible (installation de curl)
 
@@ -620,7 +620,7 @@ Le playbook `install_curl.yml` installe le package `curl`.
 Exécution du playbook :
 ansible-playbook -i inventory install_curl.yml
 
-![Playbook curl](screenshots/a3-27-playbook-curl.png)
+![Playbook curl](cv-onepage/screenshots/a3-27-playbook-curl.png)
 
 ## 28. Playbook Ansible pour installer Docker
 
@@ -630,7 +630,7 @@ Résultat après exécution :
 docker --version
 Docker version 29.8.1, build 4a63305
 
-![Playbook Docker](screenshots/a3-28-playbook-docker.png)
+![Playbook Docker](cv-onepage/screenshots/a3-28-playbook-docker.png)
 
 ## 29. Création de l'API Node.js / Express
 
@@ -640,36 +640,36 @@ L'API se trouve dans le dossier `api/`. Structure :
 
 Lancement : node server.js
 
-![API démarrée](screenshots/a3-29-api-demarree.png)
-![Structure API](screenshots/a3-29-structure-api.png)
+![API démarrée](cv-onepage/screenshots/a3-29-api-demarree.png)
+![Structure API](cv-onepage/screenshots/a3-29-structure-api.png)
 
 ## 30. Route GET /api/health
 
 Retourne l'état de l'API :
 {"status":"OK","message":"L'API fonctionne correctement"}
 
-![Health](screenshots/a3-30-api-health.png)
+![Health](cv-onepage/screenshots/a3-30-api-health.png)
 
 ## 31. Route GET /api/profile
 
 Retourne les informations du portfolio :
-![Profile](screenshots/a3-31-api-profile.png)
+![Profile](cv-onepage/screenshots/a3-31-api-profile.png)
 
 ## 32. Route GET /api/projects
 
 Retourne la liste des projets :
-![Projects](screenshots/a3-32-api-projects.png)
+![Projects](cv-onepage/screenshots/a3-32-api-projects.png)
 
 ## 33. Route GET /api/skills
 
 Retourne la liste des compétences :
-![Skills](screenshots/a3-33-api-skills.png)
+![Skills](cv-onepage/screenshots/a3-33-api-skills.png)
 
 ## 34. Frontend Next.js connecté à l'API (Projets)
 
 Le composant `components/Projects.js` a été modifié pour récupérer les projets depuis l'API Express via `fetch()`.
 
-![Frontend connecté à l'API](screenshots/a3-34-35-frontend-api.png)
+![Frontend connecté à l'API](cv-onepage/screenshots/a3-34-35-frontend-api.png)
 
 ## 35. Frontend Next.js connecté à l'API (Compétences)
 
@@ -697,7 +697,7 @@ Le `Dockerfile` de l'API installe les dépendances de production et lance `node 
 Commande utilisée :
 docker compose -f docker-compose.activite3.yml build
 
-![Build des images](screenshots/a3-40-docker-images.png)
+![Build des images](cv-onepage/screenshots/a3-40-docker-images.png)
 
 ## 41. Fichier Docker Compose (Frontend + API)
 
@@ -707,12 +707,13 @@ Lancement et vérification :
 docker compose -f docker-compose.activite3.yml up -d
 docker compose -f docker-compose.activite3.yml ps
 
-![Docker compose up](screenshots/a3-41-docker-compose-up.png)
-![Docker compose ps](screenshots/a3-41-docker-compose-ps.png)
+![Docker compose up](cv-onepage/screenshots/a3-41-docker-compose-up.png)
+![Docker compose ps](cv-onepage/screenshots/a3-41-docker-compose-ps.png)
 
 ## 42. Communication Frontend / API via Docker Compose
 
 Le frontend communique avec l'API à travers le réseau Docker Compose (en utilisant le nom de service `api`). Le portfolio affiche les données fournies par l'API.
+
 
 ![Portfolio avec Docker Compose](screenshots/a3-42-portfolio-compose.png)
 
@@ -733,3 +734,5 @@ Le frontend communique avec l'API à travers le réseau Docker Compose (en utili
 | API8: Security Misconfiguration | Mauvaise configuration | Helmet configuré pour ajouter les headers de sécurité HTTP |
 | API9: Improper Inventory Management | Inventaire incomplet | API versionnée (`/api/...`) et documentée dans le README |
 | API10: Unsafe Consumption of APIs | Consommation non sécurisée d'API tierces | Aucune API tierce consommée pour l'instant |
+
+![Portfolio avec Docker Compose](cv-onepage/screenshots/a3-42-portfolio-compose.png)
