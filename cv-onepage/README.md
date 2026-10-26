@@ -4,7 +4,7 @@ Ce dépôt contient le DevSecOps Portfolio (HTML5, CSS3, JavaScript) et le compt
 Pour chaque point : les commandes exécutées, des explications et les captures d'écran du dossier `screenshots/`.
 
 Dépôt GitHub : https://github.com/meryemelheni/cv-onepage
-
+# Activité 1 : Ubuntu Server, SSH, Docker, Jenkins, Git et Vagrant
 ## Environnement
 
 | Élément | Valeur |
@@ -469,7 +469,7 @@ vagrant ssh
 
 La création manuelle aide à comprendre chaque étape de l'installation. Vagrant convient mieux dès qu'il faut recréer la même machine plusieurs fois, la partager ou l'inclure dans un projet géré avec Git.
 
-
+# Activité 2 : Migration Next.js et Premier Pipeline Jenkins
 ## 18. Migration vers Next.js
 
 Le portfolio a été migré vers une application Next.js 16 (App Router), en conservant le design et les sections de la version HTML/CSS/JS.
@@ -588,6 +588,7 @@ L'étape `Build` exécute `npm run build`. Next.js compile l'application en mode
 Capture du résultat du build :
 ![Stage Build](screenshots/a2-24-build.png)
 
+# Activité 3 : Ansible, API Express et Dockerisation
 ## 25. Installation d'Ansible sur une VM d'administration
 
 Ansible a été installé sur la VM Vagrant (`vagrant-ubuntu`), qui sert de machine d'administration. L'installation s'est faite via `pip` pour avoir une version récente compatible avec Python 3.12.
