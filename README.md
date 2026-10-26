@@ -715,7 +715,7 @@ docker compose -f docker-compose.activite3.yml ps
 Le frontend communique avec l'API à travers le réseau Docker Compose (en utilisant le nom de service `api`). Le portfolio affiche les données fournies par l'API.
 
 
-![Portfolio avec Docker Compose](screenshots/a3-42-portfolio-compose.png)
+![Portfolio avec Docker Compose](cv-onepage/screenshots/a3-42-portfolio-compose.png)
 
 
 # Activité 4 : Vagrant, Ansible, Sécurité API et DevSecOps
