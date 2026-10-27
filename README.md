@@ -897,4 +897,4 @@ Capture des tests réussis dans le pipeline :
 Le pipeline Jenkins construit automatiquement les images Docker du frontend et du backend.
 
 Capture du build réussi :
-(https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-62-build-succes.png?raw=true)
+![Build Docker Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-62-build-succes.png?raw=true)
