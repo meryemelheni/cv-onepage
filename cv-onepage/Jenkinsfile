@@ -4,31 +4,31 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Recuperation du code source...'
+                echo 'Récupération du code source...'
                 checkout scm
             }
         }
-        stage('Build Frontend') {
+        stage('Install') {
             steps {
-                echo 'Construction de l image frontend...'
-                sh 'docker build -t maryemelheni/garderie-frontend:latest ./frontend'
+                echo 'Installation des dépendances...'
+                dir('cv-onepage/portfolio-nextjs') {
+                    sh 'npm ci'
+                }
             }
         }
-        stage('Build Backend') {
+        stage('Build') {
             steps {
-                echo 'Construction de l image backend...'
-                sh 'docker build -t maryemelheni/garderie-backend:latest ./backend'
+                echo 'Construction de l application Next.js...'
+                dir('cv-onepage/portfolio-nextjs') {
+                    sh 'npm run build'
+                }
             }
         }
-        stage('Push Frontend') {
-            steps {
-                echo 'Push de l image frontend (ignore car deja sur Docker Hub)...'
-            }
-        }
-        stage('Push Backend') {
-            steps {
-                echo 'Push de l image backend (ignore car deja sur Docker Hub)...'
-            }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline terminé.'
         }
     }
 }

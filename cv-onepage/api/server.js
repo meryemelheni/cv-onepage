@@ -1,13 +1,32 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
+const { z } = require('zod');
+const { Pool } = require('pg');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Connexion à PostgreSQL (localhost pour la VM, ou 192.168.65.132 pour Windows)
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL || "postgresql://garderie_user:garderie_password@192.168.65.132:5432/garderie_db"
+});
+// Configuration des middlewares
 app.use(cors());
+app.use(helmet());
 app.use(express.json());
 
-// Données du portfolio (tu peux les importer ou les définir ici)
+// Limiteur de requêtes pour la route contact
+const contactLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { status: 'error', message: 'Trop de requêtes. Veuillez réessayer dans 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Données statiques (Portfolio)
 const projects = [
   {
     slug: "serveur-ubuntu",
@@ -72,27 +91,44 @@ const profile = {
   github: "github.com/meryemelheni"
 };
 
-// 30 - Route de santé
-app.get('/api/health', (req, res) => {
-  res.json({ status: "OK", message: "L'API fonctionne correctement" });
+// Routes GET
+app.get('/api/health', (req, res) => res.json({ status: "OK", message: "L'API fonctionne correctement" }));
+app.get('/api/profile', (req, res) => res.json(profile));
+app.get('/api/projects', (req, res) => res.json(projects));
+app.get('/api/skills', (req, res) => res.json(skills));
+
+// Schéma de validation Zod
+const contactSchema = z.object({
+    nom: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+    email: z.string().email("Adresse email invalide"),
+    message: z.string().min(5, "Le message doit contenir au moins 5 caractères")
 });
 
-// 31 - Route profil
-app.get('/api/profile', (req, res) => {
-  res.json(profile);
+// Route POST pour le formulaire de contact
+app.post('/api/contact', contactLimiter, async (req, res) => {
+    try {
+        const validatedData = contactSchema.parse(req.body);
+        const result = await pool.query(
+            'INSERT INTO contacts (nom, email, message) VALUES ($1, $2, $3) RETURNING *',
+            [validatedData.nom, validatedData.email, validatedData.message]
+        );
+        console.log('Message enregistré :', result.rows[0]);
+        res.status(201).json({ status: 'success', message: 'Message bien reçu. Merci !', data: result.rows[0] });
+           } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({ 
+                status: 'error', 
+                message: 'Données invalides', 
+                errors: error.issues 
+            });
+        }
+        console.error('Erreur base de données :', error);
+        res.status(500).json({ status: 'error', message: 'Erreur serveur' });
+    }
 });
 
-// 32 - Route projets
-app.get('/api/projects', (req, res) => {
-  res.json(projects);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Backend Ma Garderie démarré sur le port ${PORT}`);
 });
 
-// 33 - Route compétences
-app.get('/api/skills', (req, res) => {
-  res.json(skills);
-});
-
-// Démarrage du serveur
-app.listen(PORT, () => {
-  console.log(`Serveur API démarré sur http://localhost:${PORT}`);
-});
+module.exports = app;
