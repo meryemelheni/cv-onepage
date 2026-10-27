@@ -14,14 +14,37 @@ pipeline {
                 dir('cv-onepage/portfolio-nextjs') {
                     sh 'npm ci'
                 }
+                dir('cv-onepage/api') {
+                    sh 'npm ci'
+                }
             }
         }
-        stage('Build') {
+        stage('Test Frontend') {
             steps {
-                echo 'Construction de l application Next.js...'
+                echo 'Test du frontend...'
                 dir('cv-onepage/portfolio-nextjs') {
-                    sh 'npm run build'
+                    sh 'npm test'
                 }
+            }
+        }
+        stage('Test API') {
+            steps {
+                echo 'Test de l API...'
+                dir('cv-onepage/api') {
+                    sh 'npm test'
+                }
+            }
+        }
+        stage('Build Frontend') {
+            steps {
+                echo 'Construction de l image frontend...'
+                sh 'docker build -t maryemelheni/garderie-frontend:latest ./cv-onepage/portfolio-nextjs'
+            }
+        }
+        stage('Build Backend') {
+            steps {
+                echo 'Construction de l image backend...'
+                sh 'docker build -t maryemelheni/garderie-backend:latest ./cv-onepage/api'
             }
         }
     }
