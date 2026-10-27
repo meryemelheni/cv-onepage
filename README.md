@@ -1,5 +1,5 @@
 # Activité de démarrage : Ubuntu Server, SSH, Docker, Jenkins, Git et Vagrant
-![Test](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-30-application-vagrant.png?raw=true)
+
 Ce dépôt contient le DevSecOps Portfolio (HTML5, CSS3, JavaScript) et le compte rendu du TP.
 Pour chaque point : les commandes exécutées, des explications et les captures d'écran du dossier `cv-onepage/screenshots/`.
 
