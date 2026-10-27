@@ -715,7 +715,7 @@ docker compose -f docker-compose.activite3.yml ps
 Le frontend communique avec l'API à travers le réseau Docker Compose (en utilisant le nom de service `api`). Le portfolio affiche les données fournies par l'API.
 
 
-![Portfolio avec Docker Compose](screenshots/a3-42-portfolio-compose.png)
+![Portfolio avec Docker Compose](cv-onepage/screenshots/a3-42-portfolio-compose.png)
 
 
 # Activité 4 : Vagrant, Ansible, Sécurité API et DevSecOps
@@ -735,4 +735,4 @@ Le frontend communique avec l'API à travers le réseau Docker Compose (en utili
 | API9: Improper Inventory Management | Inventaire incomplet | API versionnée (`/api/...`) et documentée dans le README |
 | API10: Unsafe Consumption of APIs | Consommation non sécurisée d'API tierces | Aucune API tierce consommée pour l'instant |
 
-![Portfolio avec Docker Compose](cv-onepage/screenshots/a3-42-portfolio-compose.png)
+
