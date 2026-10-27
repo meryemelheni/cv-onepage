@@ -35,7 +35,7 @@ pipeline {
                 }
             }
         }
-        stage('Audit (npm audit)') {
+        stage('Audit') {
             steps {
                 echo 'Contrôle des dépendances (npm audit)...'
                 dir('cv-onepage/portfolio-nextjs') {
@@ -46,16 +46,40 @@ pipeline {
                 }
             }
         }
-        stage('Scan des secrets (Gitleaks)') {
+        stage('Gitleaks') {
             steps {
                 echo 'Scan des secrets avec Gitleaks...'
                 sh 'gitleaks detect --source . --verbose || true'
             }
         }
-        stage('Scan Docker (Trivy)') {
+        stage('Semgrep') {
+            steps {
+                echo 'SAST avec Semgrep...'
+                sh 'semgrep --config=auto --error || true'
+            }
+        }
+        stage('Dependency-Check') {
+            steps {
+                echo 'OWASP Dependency-Check...'
+                sh 'dependency-check --scan cv-onepage/portfolio-nextjs --scan cv-onepage/api --format HTML --out dependency-check-report.html || true'
+            }
+        }
+        stage('Trivy') {
             steps {
                 echo 'Scan des images Docker avec Trivy...'
                 sh 'trivy image maryemelheni/garderie-frontend:latest || true'
+            }
+        }
+        stage('Build Frontend') {
+            steps {
+                echo 'Construction de l image frontend avec Git SHA...'
+                sh 'docker build -t maryemelheni/garderie-frontend:${GIT_COMMIT} -t maryemelheni/garderie-frontend:latest ./cv-onepage/portfolio-nextjs'
+            }
+        }
+        stage('Build Backend') {
+            steps {
+                echo 'Construction de l image backend avec Git SHA...'
+                sh 'docker build -t maryemelheni/garderie-backend:${GIT_COMMIT} -t maryemelheni/garderie-backend:latest ./cv-onepage/api'
             }
         }
     }
