@@ -35,6 +35,29 @@ pipeline {
                 }
             }
         }
+        stage('Audit (npm audit)') {
+            steps {
+                echo 'Contrôle des dépendances (npm audit)...'
+                dir('cv-onepage/portfolio-nextjs') {
+                    sh 'npm audit || true'
+                }
+                dir('cv-onepage/api') {
+                    sh 'npm audit || true'
+                }
+            }
+        }
+        stage('Scan des secrets (Gitleaks)') {
+            steps {
+                echo 'Scan des secrets avec Gitleaks...'
+                sh 'gitleaks detect --source . --verbose || true'
+            }
+        }
+        stage('Scan Docker (Trivy)') {
+            steps {
+                echo 'Scan des images Docker avec Trivy...'
+                sh 'trivy image maryemelheni/garderie-frontend:latest || true'
+            }
+        }
     }
     
     post {
