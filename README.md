@@ -725,33 +725,59 @@ Le frontend communique avec l'API à travers le réseau Docker Compose (en utili
 
 ### 43. Vagrant et Ansible (déploiement automatique)
 
-(À compléter avec les captures et le texte du point 43)
+Le playbook Ansible `site.yml` a été utilisé pour déployer automatiquement le portfolio avec Docker Compose sur la VM Vagrant.
 
-### 44. Configuration Vagrant pour Ansible
+Commande utilisée :
+```bash
+ansible-playbook -i ansible/inventory ansible/site.yml --ask-become-pass
+Capture du Portfolio accessible depuis la VM Vagrant :
+https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-30-application-vagrant.png?raw=true
 
-(À compléter avec les captures et le texte du point 44)
+44. Configuration Vagrant pour Ansible
+Le Vagrantfile a été configuré pour exécuter automatiquement le playbook Ansible après la création de la VM (config.vm.provision "ansible_local").
 
-### 45. Vagrant destroy et vagrant up
+Capture montrant l'automatisation complète :
+https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-17-vagrant-status.png?raw=true
 
-(À compléter avec les captures et le texte du point 45)
+
+45. Vagrant destroy et vagrant up
+La VM a été détruite puis recréée pour vérifier que le portfolio est automatiquement redéployé.
+
+Commandes :
+vagrant destroy -f
+vagrant up
+
+Documentation du test : la VM a bien été recréée et le provisioning Ansible a fonctionné.
 
 ### 46. Route POST /api/contact
 
 Capture du succès de l'envoi du formulaire :
 ![Contact Success](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true)
 
-### 47. Formulaire de contact Next.js
 
-(À compléter avec les captures et le texte du point 47)
+47. Formulaire de contact Next.js
+Le formulaire de contact du portfolio Next.js a été connecté à l'API Express (route POST /api/contact).
+
+Capture d'un envoi réussi :
+https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true
+
 
 ### 48. Validation Zod
+Exemple de requête refusée par Zod (données invalides) :
 
 Capture du test avec des données invalides :
 ![Zod Error](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
 
 ### 49. Gestion centralisée des erreurs
+La gestion centralisée des erreurs est assurée par un middleware dans `server.js`. Toute erreur est interceptée et renvoie une réponse JSON standardisée.
 
-(À compléter avec les captures et le texte du point 49)
+Capture de la gestion des erreurs :
+![Erreur API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
+
+Exemple de réponse d'erreur :
+```json
+{"status":"error","message":"Erreur serveur"}
+
 
 ### 50. Headers de sécurité (Helmet)
 
@@ -855,3 +881,20 @@ npm test
 
 Capture du test API réussi :
 ![Test API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-58-test-api.png?raw=true)
+
+## 61. Tests automatiques dans Jenkins
+
+Le pipeline Jenkins exécute automatiquement les tests du frontend et de l'API à chaque build.
+
+- **Test Frontend** : `npm test` dans `cv-onepage/portfolio-nextjs` (test du composant Header).
+- **Test API** : `npm test` dans `cv-onepage/api` (test de la route `/api/health`).
+
+Capture des tests réussis dans le pipeline :
+![Tests Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-61-jenkins-succes.png?raw=true)
+
+## 62. Build des images Docker
+
+Le pipeline Jenkins construit automatiquement les images Docker du frontend et du backend.
+
+Capture du build réussi :
+![Build Docker Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-62-build-succes.png?raw=true)
