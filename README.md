@@ -1036,4 +1036,8 @@ Pour vérifier que les contrôles de sécurité bloquent bien un build dangereux
 
 Capture du pipeline en échec :
 
+
 ![Pipeline en échec](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-echec.png?raw=true)
+
+![Pipeline en échec](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-echec.png?raw=true)
+
