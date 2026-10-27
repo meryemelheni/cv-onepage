@@ -956,88 +956,52 @@ Capture du build réussi :
 
 ![Build Docker Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-62-build-succes.png?raw=true)
 
-### 63. Tag des images avec le SHA du commit Git
+## 63. Git SHA comme tag des images Docker
 
-Chaque image Docker est taguée avec le SHA court du commit Git qui l'a produite. Cela permet de savoir exactement quelle version du code tourne dans un conteneur, et de revenir facilement à une version précédente.
+Le pipeline Jenkins utilise le hash du commit Git (`$GIT_COMMIT`) pour taguer les images Docker, ce qui permet de tracer chaque build.
 
-```bash
-GIT_SHA=$(git rev-parse --short HEAD)
-docker build -t cv-docker:$GIT_SHA .
-docker images cv-docker
-```
+Exemple de tag généré : `devsecops-portfolio:a1b2c3d`
 
-Capture des images taguées avec le SHA :
+## 64. Scan des secrets avec Gitleaks
 
-![Tag Git SHA](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-63-git-sha.png?raw=true)
+Le pipeline exécute Gitleaks pour détecter les secrets (mots de passe, clés API) dans le code source.
 
-### 64. Détection de secrets avec Gitleaks
-
-Gitleaks analyse le dépôt à la recherche de secrets committés par erreur (mots de passe, clés d'API, tokens). Il est exécuté dans le pipeline avant le build.
-
-```bash
-gitleaks detect --source . --verbose
-```
+Commande : `gitleaks detect --source . --verbose`
 
 Capture du scan Gitleaks :
+![Gitleaks](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
 
-![Gitleaks](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-64-gitleaks.png?raw=true)
+## 65. SAST avec Semgrep
 
-### 65. Analyse statique du code avec Semgrep
-
-Semgrep est un outil de SAST (analyse statique). Il repère dans le code source des motifs dangereux : injections, usages risqués de fonctions, mauvaises pratiques de sécurité.
-
-```bash
-semgrep --config auto .
-```
+Semgrep analyse le code source pour détecter les vulnérabilités de sécurité (injections, mauvaises pratiques).
 
 Capture du scan Semgrep :
+![Semgrep](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
 
-![Semgrep](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-65-semgrep.png?raw=true)
+## 66. Contrôle des dépendances (npm audit)
 
-### 66. Audit des dépendances avec npm audit
+Le pipeline exécute `npm audit` pour vérifier les vulnérabilités dans les dépendances Node.js.
 
-`npm audit` compare les dépendances du projet à la base de vulnérabilités connues de npm.
+Capture du résultat de npm audit :
+![npm audit](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
 
-```bash
-npm audit --audit-level=high
-```
+## 67. OWASP Dependency-Check
 
-Capture de l'audit npm :
+OWASP Dependency-Check analyse les dépendances pour détecter les vulnérabilités connues (CVE).
 
-![npm audit](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-66-npm-audit.png?raw=true)
+Capture d'une dépendance vulnérable détectée :
+![OWASP Dependency-Check](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
 
-### 67. Analyse des dépendances avec OWASP Dependency-Check
+## 68. Scan des images Docker avec Trivy
 
-OWASP Dependency-Check identifie les composants utilisés par le projet et les rapproche des vulnérabilités publiées (CVE). Il génère un rapport HTML consultable dans Jenkins.
-
-```bash
-dependency-check --scan . --format HTML --out reports/
-```
-
-Capture du rapport Dependency-Check :
-
-![OWASP Dependency-Check](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-67-dependency-check.png?raw=true)
-
-### 68. Scan des images Docker avec Trivy
-
-Trivy analyse les images Docker construites : système de base, paquets installés et dépendances applicatives. Il signale les vulnérabilités par niveau de gravité.
-
-```bash
-trivy image --severity HIGH,CRITICAL cv-docker:$GIT_SHA
-```
+Trivy scanne les images Docker pour détecter les vulnérabilités (CVE) dans les packages installés.
 
 Capture du scan Trivy :
+![Trivy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
 
-![Trivy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-68-trivy.png?raw=true)
+## 69. Échec volontaire du pipeline
 
-### 69. Échec volontaire du pipeline
+Pour vérifier que les contrôles de sécurité bloquent bien un build dangereux, un problème a été introduit volontairement. Le pipeline s'arrête alors en erreur et l'image n'est pas publiée. Après correction, le pipeline repasse au vert.
 
-Pour vérifier que les contrôles de sécurité bloquent bien un build dangereux, un problème a été introduit volontairement (par exemple une vulnérabilité critique ou un faux secret dans le code). Le pipeline s'arrête alors en erreur et l'image n'est pas publiée. Après correction, le pipeline repasse au vert.
-
-Capture du pipeline en échec :
-
-
-![Pipeline en échec](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-echec.png?raw=true)
-
-![Pipeline en échec](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-echec.png?raw=true)
-
+Capture du pipeline en succès :
+![Pipeline en succès](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
