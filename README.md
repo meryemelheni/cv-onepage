@@ -4,7 +4,9 @@ Ce dépôt contient le DevSecOps Portfolio (HTML5, CSS3, JavaScript) et le compt
 Pour chaque point : les commandes exécutées, des explications et les captures d'écran du dossier `cv-onepage/screenshots/`.
 
 Dépôt GitHub : https://github.com/meryemelheni/cv-onepage
+
 # Activité 1 : Ubuntu Server, SSH, Docker, Jenkins, Git et Vagrant
+
 ## Environnement
 
 | Élément | Valeur |
@@ -470,20 +472,27 @@ vagrant ssh
 La création manuelle aide à comprendre chaque étape de l'installation. Vagrant convient mieux dès qu'il faut recréer la même machine plusieurs fois, la partager ou l'inclure dans un projet géré avec Git.
 
 # Activité 2 : Migration Next.js et Premier Pipeline Jenkins
+
 ## 18. Migration vers Next.js
 
 Le portfolio a été migré vers une application Next.js 16 (App Router), en conservant le design et les sections de la version HTML/CSS/JS.
 
 Commande de création du projet (exécutée dans le dossier `cv-onepage/cv-onepage`) :
+
+```bash
 npx create-next-app@latest portfolio-nextjs --js --app --no-tailwind --no-src-dir --use-npm --disable-git
+```
 
 Capture de l'application Next.js en local :
+
 ![Application Next.js](cv-onepage/screenshots/a2-18-accueil.png)
 
 ## 19. Composants réutilisables
 
 Les principales parties du portfolio ont été découpées en composants React dans le dossier `components/`.
+
 Structure des composants :
+
 - `Header.js` : barre de navigation
 - `About.js` : section de présentation
 - `Skills.js` : compétences techniques et DevSecOps
@@ -493,6 +502,7 @@ Structure des composants :
 - `Footer.js` : pied de page
 
 Capture de la structure :
+
 ![Structure des composants](cv-onepage/screenshots/a2-19-composants.png)
 
 ## 20. Fichiers de données
@@ -500,6 +510,8 @@ Capture de la structure :
 Les informations des projets et des compétences ont été extraites dans des fichiers séparés dans le dossier `data/` (`projects.js` et `skills.js`). Cela permet de modifier le contenu sans toucher aux composants.
 
 Exemple de données utilisées (`data/projects.js`) :
+
+```javascript
 {
   slug: 'serveur-ubuntu-securise',
   title: 'Serveur Ubuntu 26.04 sécurisé',
@@ -512,8 +524,10 @@ Exemple de données utilisées (`data/projects.js`) :
   ],
   link: 'https://github.com/meryemelheni/cv-onepage'
 }
+```
 
 Capture du fichier de données :
+
 ![Fichier de données](cv-onepage/screenshots/a2-20-donnees.png)
 
 ## 21. Pages dédiées aux projets
@@ -521,12 +535,14 @@ Capture du fichier de données :
 Une page listant tous les projets et une page de détail par projet ont été ajoutées. La génération des pages de détail utilise `generateStaticParams`.
 
 - `/projects` : liste des projets
-- `/projects/[slug]` : détail d'un projet (ex: `/projects/serveur-ubuntu-securise`)
+- `/projects/[slug]` : détail d'un projet (ex : `/projects/serveur-ubuntu-securise`)
 
 Capture de la page `/projects` :
+
 ![Page Projets](cv-onepage/screenshots/a2-21-projets.png)
 
 Capture de la page de détail d'un projet :
+
 ![Détail d'un projet](cv-onepage/screenshots/a2-21-detail-projet.png)
 
 ## 22. Premier pipeline Jenkins
@@ -534,6 +550,8 @@ Capture de la page de détail d'un projet :
 Un job Jenkins de type "Pipeline script from SCM" a été créé. Il récupère automatiquement le dépôt GitHub `cv-onepage`, puis exécute le fichier `Jenkinsfile` situé dans `cv-onepage/portfolio-nextjs/`.
 
 Contenu du `Jenkinsfile` :
+
+```groovy
 pipeline {
     agent any
 
@@ -544,7 +562,7 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage('Install') {
             steps {
                 echo 'Installation des dépendances Next.js...'
@@ -553,7 +571,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build') {
             steps {
                 echo 'Construction de l\'application Next.js...'
@@ -563,15 +581,17 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             echo 'Pipeline terminé.'
         }
     }
 }
+```
 
 Capture du pipeline exécuté avec succès :
+
 ![Pipeline Jenkins](cv-onepage/screenshots/a2-22-pipeline.png)
 
 ## 23. Installation des dépendances (Stage Install)
@@ -579,6 +599,7 @@ Capture du pipeline exécuté avec succès :
 Le pipeline contient une étape `Install` qui exécute `npm ci` dans le dossier du projet Next.js. Cette commande installe les dépendances exactes listées dans le fichier `package-lock.json`, garantissant un build reproductible.
 
 Capture du stage Install :
+
 ![Stage Install](cv-onepage/screenshots/a2-23-install.png)
 
 ## 24. Construction de l'application (Stage Build)
@@ -586,33 +607,37 @@ Capture du stage Install :
 L'étape `Build` exécute `npm run build`. Next.js compile l'application en mode production et génère les pages statiques, y compris les pages de détail des projets grâce à `generateStaticParams`.
 
 Capture du résultat du build :
+
 ![Stage Build](cv-onepage/screenshots/a2-24-build.png)
 
-
-
-## Activité 3 : Ansible, API Express et Dockerisation
+# Activité 3 : Ansible, API Express et Dockerisation
 
 ### 25. Installation d'Ansible sur une VM d'administration
 
 Ansible a été installé sur la VM Vagrant (`vagrant-ubuntu`). L'installation s'est faite via `pip` pour avoir une version récente compatible avec Python 3.12.
 
-Commandes :
+```bash
 sudo apt update
 sudo apt install -y python3-pip
 pip3 install --user ansible
+```
 
 ### 26. Fichier inventory et test de communication
 
 Le fichier `inventory` contient l'adresse de la VM cible (`ubuntuserver`) :
 
-Fichier inventory :
+```ini
 [serveurs]
 ubuntuserver ansible_host=192.168.65.132 ansible_user=meryem ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ansible
+```
 
 Test de communication :
-ansible all -m ping -i inventory
 
-Résultat : SUCCESS avec "ping": "pong".
+```bash
+ansible all -m ping -i inventory
+```
+
+Résultat : SUCCESS avec `"ping": "pong"`.
 
 ![Test Ansible ping](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-27-playbook-curl.png?raw=true)
 
@@ -621,7 +646,10 @@ Résultat : SUCCESS avec "ping": "pong".
 Le playbook `install_curl.yml` installe le package `curl`.
 
 Exécution du playbook :
+
+```bash
 ansible-playbook -i inventory install_curl.yml
+```
 
 ![Playbook curl](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-27-playbook-curl.png?raw=true)
 
@@ -630,42 +658,60 @@ ansible-playbook -i inventory install_curl.yml
 Le playbook `install_docker.yml` installe Docker et ses dépendances.
 
 Résultat après exécution :
+
+```bash
 docker --version
+```
+
+```
 Docker version 29.8.1, build 4a63305
+```
 
 ![Playbook Docker](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-28-playbook-docker.png?raw=true)
 
 ### 29. Création de l'API Node.js / Express
 
 L'API se trouve dans le dossier `api/`. Structure :
+
 - `api/server.js` : serveur Express
 - `api/package.json` : dépendances (`express`, `cors`)
 
-Lancement : node server.js
+Lancement :
+
+```bash
+node server.js
+```
 
 ![API démarrée](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-29-api-demarree.png?raw=true)
+
 ![Structure API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-29-structure-api.png?raw=true)
 
 ### 30. Route GET /api/health
 
 Retourne l'état de l'API :
+
+```json
 {"status":"OK","message":"L'API fonctionne correctement"}
+```
 
 ![Health](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-30-api-health.png?raw=true)
 
 ### 31. Route GET /api/profile
 
 Retourne les informations du portfolio :
+
 ![Profile](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-31-api-profile.png?raw=true)
 
 ### 32. Route GET /api/projects
 
 Retourne la liste des projets :
+
 ![Projects](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-32-api-projects.png?raw=true)
 
 ### 33. Route GET /api/skills
 
 Retourne la liste des compétences :
+
 ![Skills](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-33-api-skills.png?raw=true)
 
 ### 34. Frontend Next.js connecté à l'API (Projets)
@@ -685,7 +731,10 @@ L'URL de l'API est configurée via la variable `API_URL` (dans `.env.local`). Il
 ### 37. Fichier .env.example
 
 Contenu :
+
+```
 API_URL=http://localhost:3001
+```
 
 ### 38. Dockerfile pour le frontend Next.js
 
@@ -698,7 +747,10 @@ Le `Dockerfile` de l'API installe les dépendances de production et lance `node 
 ### 40. Construction des images Docker
 
 Commande utilisée :
+
+```bash
 docker compose -f docker-compose.activite3.yml build
+```
 
 ![Build des images](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-40-docker-images.png?raw=true)
 
@@ -707,10 +759,14 @@ docker compose -f docker-compose.activite3.yml build
 Le fichier `docker-compose.activite3.yml` déclare les deux services. Le frontend utilise la variable `API_URL=http://api:3001` pour communiquer avec l'API via le réseau Docker.
 
 Lancement et vérification :
+
+```bash
 docker compose -f docker-compose.activite3.yml up -d
 docker compose -f docker-compose.activite3.yml ps
+```
 
 ![Docker compose up](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-41-docker-compose-up.png?raw=true)
+
 ![Docker compose ps](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a3-41-docker-compose-ps.png?raw=true)
 
 ### 42. Communication Frontend / API via Docker Compose
@@ -721,72 +777,87 @@ Le frontend communique avec l'API à travers le réseau Docker Compose (en utili
 
 ---
 
-## Activité 4 : Vagrant, Ansible, Sécurité API et DevSecOps
+# Activité 4 : Vagrant, Ansible, Sécurité API et DevSecOps
 
 ### 43. Vagrant et Ansible (déploiement automatique)
 
 Le playbook Ansible `site.yml` a été utilisé pour déployer automatiquement le portfolio avec Docker Compose sur la VM Vagrant.
 
 Commande utilisée :
+
 ```bash
 ansible-playbook -i ansible/inventory ansible/site.yml --ask-become-pass
-Capture du Portfolio accessible depuis la VM Vagrant :
-https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-30-application-vagrant.png?raw=true
+```
 
-44. Configuration Vagrant pour Ansible
-Le Vagrantfile a été configuré pour exécuter automatiquement le playbook Ansible après la création de la VM (config.vm.provision "ansible_local").
+Capture du portfolio accessible depuis la VM Vagrant :
+
+![Application sur la VM Vagrant](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-30-application-vagrant.png?raw=true)
+
+### 44. Configuration Vagrant pour Ansible
+
+Le `Vagrantfile` a été configuré pour exécuter automatiquement le playbook Ansible après la création de la VM (`config.vm.provision "ansible_local"`).
 
 Capture montrant l'automatisation complète :
-https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-17-vagrant-status.png?raw=true
 
+![Statut Vagrant](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-17-vagrant-status.png?raw=true)
 
-45. Vagrant destroy et vagrant up
+### 45. Vagrant destroy et vagrant up
+
 La VM a été détruite puis recréée pour vérifier que le portfolio est automatiquement redéployé.
 
 Commandes :
+
+```bash
 vagrant destroy -f
 vagrant up
+```
 
 Documentation du test : la VM a bien été recréée et le provisioning Ansible a fonctionné.
 
 ### 46. Route POST /api/contact
 
 Capture du succès de l'envoi du formulaire :
+
 ![Contact Success](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true)
 
+### 47. Formulaire de contact Next.js
 
-47. Formulaire de contact Next.js
-Le formulaire de contact du portfolio Next.js a été connecté à l'API Express (route POST /api/contact).
+Le formulaire de contact du portfolio Next.js a été connecté à l'API Express (route `POST /api/contact`).
 
 Capture d'un envoi réussi :
-https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true
 
+![Formulaire de contact](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true)
 
 ### 48. Validation Zod
+
 Exemple de requête refusée par Zod (données invalides) :
 
-Capture du test avec des données invalides :
 ![Zod Error](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
 
 ### 49. Gestion centralisée des erreurs
+
 La gestion centralisée des erreurs est assurée par un middleware dans `server.js`. Toute erreur est interceptée et renvoie une réponse JSON standardisée.
 
-Capture de la gestion des erreurs :
-![Erreur API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
-
 Exemple de réponse d'erreur :
+
 ```json
 {"status":"error","message":"Erreur serveur"}
+```
 
+Capture de la gestion des erreurs :
+
+![Erreur API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
 
 ### 50. Headers de sécurité (Helmet)
 
 Capture des headers de sécurité (Helmet) :
+
 ![Helmet Headers](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-50-helmet-headers.png?raw=true)
 
 ### 51. Rate Limiting
 
 Capture du Rate Limiting (429 Too Many Requests) :
+
 ![Rate Limit](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-51-rate-limit.png?raw=true)
 
 ### 52. OWASP API Security Top 10
@@ -805,12 +876,14 @@ Capture du Rate Limiting (429 Too Many Requests) :
 | API10: Unsafe Consumption of APIs | Consommation non sécurisée d'API tierces | Aucune API tierce consommée pour l'instant |
 
 Capture du tableau OWASP :
+
 ![OWASP Table](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-52-owasp-table.png?raw=true)
 
 ### 53. Base de données PostgreSQL
 
-Un service PostgreSQL a été ajouté dans le fichier docker-compose.yml :
+Un service PostgreSQL a été ajouté dans le fichier `docker-compose.yml` :
 
+```yaml
   db:
     image: postgres:16-alpine
     container_name: garderie-db
@@ -824,21 +897,31 @@ Un service PostgreSQL a été ajouté dans le fichier docker-compose.yml :
       - pgdata:/var/lib/postgresql/data
     networks:
       - garderie-net
+```
 
 Lancement de la base :
+
+```bash
 docker compose up -d db
+```
 
 Vérification :
+
+```bash
 docker compose ps
+```
 
 Capture de PostgreSQL en cours d'exécution :
+
 ![PostgreSQL Up](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-53-postgresql-up.png?raw=true)
 
 ### 54. Enregistrement des messages dans PostgreSQL
 
-L'API Express a été modifiée pour enregistrer les messages du formulaire dans la table contacts.
+L'API Express a été modifiée pour enregistrer les messages du formulaire dans la table `contacts`.
 
 Création de la table (via psql) :
+
+```sql
 CREATE TABLE contacts (
     id SERIAL PRIMARY KEY,
     nom VARCHAR(255) NOT NULL,
@@ -846,43 +929,63 @@ CREATE TABLE contacts (
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+```
 
 Vérification dans la base :
+
+```bash
 docker exec -it garderie-db psql -U garderie_user -d garderie_db -c "SELECT * FROM contacts;"
+```
 
 Capture de la réponse de l'API :
+
 ![API Success](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-54-api-success.png?raw=true)
+
 Capture de la console du serveur :
+
 ![Console Log](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-54-console-log.png?raw=true)
+
 Capture du message enregistré dans la table :
+
 ![Table contacts](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-54-postgresql-table.png?raw=true)
 
 ### 55. Variables d'environnement
 
-Le fichier .env.example a été mis à jour avec les variables de la base de données :
+Le fichier `.env.example` a été mis à jour avec les variables de la base de données :
+
+```
 DOCKERHUB_USER=votre_user_dockerhub
 POSTGRES_USER=garderie_user
 POSTGRES_PASSWORD=garderie_password
 POSTGRES_DB=garderie_db
 DATABASE_URL=postgresql://garderie_user:garderie_password@localhost:5432/garderie_db
+```
 
 ### 56. Tests applicatifs
 
 Test du frontend :
+
+```bash
 cd frontend
 npm test
+```
 
 Capture du test frontend réussi :
+
 ![Test Frontend](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-57-test-frontend.png?raw=true)
 
 Test de l'API :
+
+```bash
 cd api
 npm test
+```
 
 Capture du test API réussi :
+
 ![Test API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-58-test-api.png?raw=true)
 
-## 61. Tests automatiques dans Jenkins
+### 61. Tests automatiques dans Jenkins
 
 Le pipeline Jenkins exécute automatiquement les tests du frontend et de l'API à chaque build.
 
@@ -890,11 +993,13 @@ Le pipeline Jenkins exécute automatiquement les tests du frontend et de l'API �
 - **Test API** : `npm test` dans `cv-onepage/api` (test de la route `/api/health`).
 
 Capture des tests réussis dans le pipeline :
+
 ![Tests Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-61-jenkins-succes.png?raw=true)
 
-## 62. Build des images Docker
+### 62. Build des images Docker
 
 Le pipeline Jenkins construit automatiquement les images Docker du frontend et du backend.
 
 Capture du build réussi :
+
 ![Build Docker Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-62-build-succes.png?raw=true)
