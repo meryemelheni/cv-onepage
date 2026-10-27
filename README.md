@@ -721,72 +721,95 @@ Le frontend communique avec l'API à travers le réseau Docker Compose (en utili
 
 ---
 
-## Activité 4 : Vagrant, Ansible, Sécurité API et DevSecOps
+# Activité 4 : Vagrant, Ansible, Sécurité API et DevSecOps
 
 ### 43. Vagrant et Ansible (déploiement automatique)
 
 Le playbook Ansible `site.yml` a été utilisé pour déployer automatiquement le portfolio avec Docker Compose sur la VM Vagrant.
 
 Commande utilisée :
+
 ```bash
 ansible-playbook -i ansible/inventory ansible/site.yml --ask-become-pass
-Capture du Portfolio accessible depuis la VM Vagrant :
-https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-30-application-vagrant.png?raw=true
+```
 
-44. Configuration Vagrant pour Ansible
-Le Vagrantfile a été configuré pour exécuter automatiquement le playbook Ansible après la création de la VM (config.vm.provision "ansible_local").
+Docker installé sur la VM Vagrant :
+
+![Docker sur la VM Vagrant](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-23-docker-vm.png?raw=true)
+
+Docker Compose lancé sur la VM Vagrant :
+
+![Docker Compose sur la VM Vagrant](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-27-docker-compose-vagrant.png?raw=true)
+
+Capture du portfolio accessible depuis la VM Vagrant :
+
+![Application sur la VM Vagrant](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-30-application-vagrant.png?raw=true)
+
+### 44. Configuration Vagrant pour Ansible
+
+Le `Vagrantfile` a été configuré pour exécuter automatiquement le playbook Ansible après la création de la VM (`config.vm.provision "ansible_local"`).
 
 Capture montrant l'automatisation complète :
-https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-17-vagrant-status.png?raw=true
 
+![Statut Vagrant](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-17-vagrant-status.png?raw=true)
 
-45. Vagrant destroy et vagrant up
+### 45. Vagrant destroy et vagrant up
+
 La VM a été détruite puis recréée pour vérifier que le portfolio est automatiquement redéployé.
 
 Commandes :
+
+```bash
 vagrant destroy -f
 vagrant up
+```
 
 Documentation du test : la VM a bien été recréée et le provisioning Ansible a fonctionné.
 
 ### 46. Route POST /api/contact
 
 Capture du succès de l'envoi du formulaire :
+
 ![Contact Success](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true)
 
+### 47. Formulaire de contact Next.js
 
-47. Formulaire de contact Next.js
-Le formulaire de contact du portfolio Next.js a été connecté à l'API Express (route POST /api/contact).
+Le formulaire de contact du portfolio Next.js a été connecté à l'API Express (route `POST /api/contact`).
 
 Capture d'un envoi réussi :
-https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true
 
+![Formulaire de contact](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-47-contact-success.png?raw=true)
 
 ### 48. Validation Zod
+
 Exemple de requête refusée par Zod (données invalides) :
 
-Capture du test avec des données invalides :
 ![Zod Error](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
 
 ### 49. Gestion centralisée des erreurs
+
 La gestion centralisée des erreurs est assurée par un middleware dans `server.js`. Toute erreur est interceptée et renvoie une réponse JSON standardisée.
 
-Capture de la gestion des erreurs :
-![Erreur API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
-
 Exemple de réponse d'erreur :
+
 ```json
 {"status":"error","message":"Erreur serveur"}
+```
 
+Capture de la gestion des erreurs :
+
+![Erreur API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-48-zod-error.png?raw=true)
 
 ### 50. Headers de sécurité (Helmet)
 
 Capture des headers de sécurité (Helmet) :
+
 ![Helmet Headers](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-50-helmet-headers.png?raw=true)
 
 ### 51. Rate Limiting
 
 Capture du Rate Limiting (429 Too Many Requests) :
+
 ![Rate Limit](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-51-rate-limit.png?raw=true)
 
 ### 52. OWASP API Security Top 10
@@ -805,12 +828,14 @@ Capture du Rate Limiting (429 Too Many Requests) :
 | API10: Unsafe Consumption of APIs | Consommation non sécurisée d'API tierces | Aucune API tierce consommée pour l'instant |
 
 Capture du tableau OWASP :
+
 ![OWASP Table](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-52-owasp-table.png?raw=true)
 
 ### 53. Base de données PostgreSQL
 
-Un service PostgreSQL a été ajouté dans le fichier docker-compose.yml :
+Un service PostgreSQL a été ajouté dans le fichier `docker-compose.yml` :
 
+```yaml
   db:
     image: postgres:16-alpine
     container_name: garderie-db
@@ -824,21 +849,31 @@ Un service PostgreSQL a été ajouté dans le fichier docker-compose.yml :
       - pgdata:/var/lib/postgresql/data
     networks:
       - garderie-net
+```
 
 Lancement de la base :
+
+```bash
 docker compose up -d db
+```
 
 Vérification :
+
+```bash
 docker compose ps
+```
 
 Capture de PostgreSQL en cours d'exécution :
+
 ![PostgreSQL Up](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-53-postgresql-up.png?raw=true)
 
 ### 54. Enregistrement des messages dans PostgreSQL
 
-L'API Express a été modifiée pour enregistrer les messages du formulaire dans la table contacts.
+L'API Express a été modifiée pour enregistrer les messages du formulaire dans la table `contacts`.
 
 Création de la table (via psql) :
+
+```sql
 CREATE TABLE contacts (
     id SERIAL PRIMARY KEY,
     nom VARCHAR(255) NOT NULL,
@@ -846,43 +881,63 @@ CREATE TABLE contacts (
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+```
 
 Vérification dans la base :
+
+```bash
 docker exec -it garderie-db psql -U garderie_user -d garderie_db -c "SELECT * FROM contacts;"
+```
 
 Capture de la réponse de l'API :
+
 ![API Success](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-54-api-success.png?raw=true)
+
 Capture de la console du serveur :
+
 ![Console Log](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-54-console-log.png?raw=true)
+
 Capture du message enregistré dans la table :
+
 ![Table contacts](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-54-postgresql-table.png?raw=true)
 
 ### 55. Variables d'environnement
 
-Le fichier .env.example a été mis à jour avec les variables de la base de données :
+Le fichier `.env.example` a été mis à jour avec les variables de la base de données :
+
+```
 DOCKERHUB_USER=votre_user_dockerhub
 POSTGRES_USER=garderie_user
 POSTGRES_PASSWORD=garderie_password
 POSTGRES_DB=garderie_db
 DATABASE_URL=postgresql://garderie_user:garderie_password@localhost:5432/garderie_db
+```
 
 ### 56. Tests applicatifs
 
 Test du frontend :
+
+```bash
 cd frontend
 npm test
+```
 
 Capture du test frontend réussi :
+
 ![Test Frontend](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-57-test-frontend.png?raw=true)
 
 Test de l'API :
+
+```bash
 cd api
 npm test
+```
 
 Capture du test API réussi :
+
 ![Test API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-58-test-api.png?raw=true)
 
-## 61. Tests automatiques dans Jenkins
+### 61. Tests automatiques dans Jenkins
 
 Le pipeline Jenkins exécute automatiquement les tests du frontend et de l'API à chaque build.
 
@@ -890,11 +945,95 @@ Le pipeline Jenkins exécute automatiquement les tests du frontend et de l'API �
 - **Test API** : `npm test` dans `cv-onepage/api` (test de la route `/api/health`).
 
 Capture des tests réussis dans le pipeline :
+
 ![Tests Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-61-jenkins-succes.png?raw=true)
 
-## 62. Build des images Docker
+### 62. Build des images Docker
 
 Le pipeline Jenkins construit automatiquement les images Docker du frontend et du backend.
 
 Capture du build réussi :
+
 ![Build Docker Jenkins](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-62-build-succes.png?raw=true)
+
+### 63. Tag des images avec le SHA du commit Git
+
+Chaque image Docker est taguée avec le SHA court du commit Git qui l'a produite. Cela permet de savoir exactement quelle version du code tourne dans un conteneur, et de revenir facilement à une version précédente.
+
+```bash
+GIT_SHA=$(git rev-parse --short HEAD)
+docker build -t cv-docker:$GIT_SHA .
+docker images cv-docker
+```
+
+Capture des images taguées avec le SHA :
+
+![Tag Git SHA](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-63-git-sha.png?raw=true)
+
+### 64. Détection de secrets avec Gitleaks
+
+Gitleaks analyse le dépôt à la recherche de secrets committés par erreur (mots de passe, clés d'API, tokens). Il est exécuté dans le pipeline avant le build.
+
+```bash
+gitleaks detect --source . --verbose
+```
+
+Capture du scan Gitleaks :
+
+![Gitleaks](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-64-gitleaks.png?raw=true)
+
+### 65. Analyse statique du code avec Semgrep
+
+Semgrep est un outil de SAST (analyse statique). Il repère dans le code source des motifs dangereux : injections, usages risqués de fonctions, mauvaises pratiques de sécurité.
+
+```bash
+semgrep --config auto .
+```
+
+Capture du scan Semgrep :
+
+![Semgrep](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-65-semgrep.png?raw=true)
+
+### 66. Audit des dépendances avec npm audit
+
+`npm audit` compare les dépendances du projet à la base de vulnérabilités connues de npm.
+
+```bash
+npm audit --audit-level=high
+```
+
+Capture de l'audit npm :
+
+![npm audit](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-66-npm-audit.png?raw=true)
+
+### 67. Analyse des dépendances avec OWASP Dependency-Check
+
+OWASP Dependency-Check identifie les composants utilisés par le projet et les rapproche des vulnérabilités publiées (CVE). Il génère un rapport HTML consultable dans Jenkins.
+
+```bash
+dependency-check --scan . --format HTML --out reports/
+```
+
+Capture du rapport Dependency-Check :
+
+![OWASP Dependency-Check](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-67-dependency-check.png?raw=true)
+
+### 68. Scan des images Docker avec Trivy
+
+Trivy analyse les images Docker construites : système de base, paquets installés et dépendances applicatives. Il signale les vulnérabilités par niveau de gravité.
+
+```bash
+trivy image --severity HIGH,CRITICAL cv-docker:$GIT_SHA
+```
+
+Capture du scan Trivy :
+
+![Trivy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-68-trivy.png?raw=true)
+
+### 69. Échec volontaire du pipeline
+
+Pour vérifier que les contrôles de sécurité bloquent bien un build dangereux, un problème a été introduit volontairement (par exemple une vulnérabilité critique ou un faux secret dans le code). Le pipeline s'arrête alors en erreur et l'image n'est pas publiée. Après correction, le pipeline repasse au vert.
+
+Capture du pipeline en échec :
+
+![Pipeline en échec](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-echec.png?raw=true)
