@@ -70,18 +70,6 @@ pipeline {
                 sh 'trivy image maryemelheni/garderie-frontend:latest || true'
             }
         }
-        stage('Build Frontend') {
-            steps {
-                echo 'Construction de l image frontend avec Git SHA...'
-                sh 'docker build -t maryemelheni/garderie-frontend:${GIT_COMMIT} -t maryemelheni/garderie-frontend:latest ./cv-onepage/portfolio-nextjs'
-            }
-        }
-        stage('Build Backend') {
-            steps {
-                echo 'Construction de l image backend avec Git SHA...'
-                sh 'docker build -t maryemelheni/garderie-backend:${GIT_COMMIT} -t maryemelheni/garderie-backend:latest ./cv-onepage/api'
-            }
-        }
     }
     
     post {
