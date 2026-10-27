@@ -614,7 +614,7 @@ ansible all -m ping -i inventory
 
 Résultat : SUCCESS avec "ping": "pong".
 
-![Test Ansible ping](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-27-playbook-curl.png?raw=true)
+![Test Ansible ping](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-27-playbook-curl.png?raw=true)
 
 ### 27. Premier playbook Ansible (installation de curl)
 
@@ -623,7 +623,7 @@ Le playbook `install_curl.yml` installe le package `curl`.
 Exécution du playbook :
 ansible-playbook -i inventory install_curl.yml
 
-![Playbook curl](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-27-playbook-curl.png?raw=true)
+![Playbook curl](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-27-playbook-curl.png?raw=true)
 
 ### 28. Playbook Ansible pour installer Docker
 
@@ -633,7 +633,7 @@ Résultat après exécution :
 docker --version
 Docker version 29.8.1, build 4a63305
 
-![Playbook Docker](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-28-playbook-docker.png?raw=true)
+![Playbook Docker](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-28-playbook-docker.png?raw=true)
 
 ### 29. Création de l'API Node.js / Express
 
@@ -643,36 +643,36 @@ L'API se trouve dans le dossier `api/`. Structure :
 
 Lancement : node server.js
 
-![API démarrée](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-29-api-demarree.png?raw=true)
-![Structure API](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-29-structure-api.png?raw=true)
+![API démarrée](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-29-api-demarree.png?raw=true)
+![Structure API](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-29-structure-api.png?raw=true)
 
 ### 30. Route GET /api/health
 
 Retourne l'état de l'API :
 {"status":"OK","message":"L'API fonctionne correctement"}
 
-![Health](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-30-api-health.png?raw=true)
+![Health](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-30-api-health.png?raw=true)
 
 ### 31. Route GET /api/profile
 
 Retourne les informations du portfolio :
-![Profile](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-31-api-profile.png?raw=true)
+![Profile](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-31-api-profile.png?raw=true)
 
 ### 32. Route GET /api/projects
 
 Retourne la liste des projets :
-![Projects](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-32-api-projects.png?raw=true)
+![Projects](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-32-api-projects.png?raw=true)
 
 ### 33. Route GET /api/skills
 
 Retourne la liste des compétences :
-![Skills](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-33-api-skills.png?raw=true)
+![Skills](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-33-api-skills.png?raw=true)
 
 ### 34. Frontend Next.js connecté à l'API (Projets)
 
 Le composant `components/Projects.js` a été modifié pour récupérer les projets depuis l'API Express via `fetch()`.
 
-![Frontend connecté à l'API](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-34-35-frontend-api.png?raw=true)
+![Frontend connecté à l'API](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-34-35-frontend-api.png?raw=true)
 
 ### 35. Frontend Next.js connecté à l'API (Compétences)
 
@@ -700,7 +700,7 @@ Le `Dockerfile` de l'API installe les dépendances de production et lance `node 
 Commande utilisée :
 docker compose -f docker-compose.activite3.yml build
 
-![Build des images](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-40-docker-images.png?raw=true)
+![Build des images](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-40-docker-images.png?raw=true)
 
 ### 41. Fichier Docker Compose (Frontend + API)
 
@@ -710,14 +710,14 @@ Lancement et vérification :
 docker compose -f docker-compose.activite3.yml up -d
 docker compose -f docker-compose.activite3.yml ps
 
-![Docker compose up](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-41-docker-compose-up.png?raw=true)
-![Docker compose ps](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-41-docker-compose-ps.png?raw=true)
+![Docker compose up](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-41-docker-compose-up.png?raw=true)
+![Docker compose ps](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-41-docker-compose-ps.png?raw=true)
 
 ### 42. Communication Frontend / API via Docker Compose
 
 Le frontend communique avec l'API à travers le réseau Docker Compose (en utilisant le nom de service `api`). Le portfolio affiche les données fournies par l'API.
 
-![Portfolio avec Docker Compose](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a3-42-portfolio-compose.png?raw=true)
+![Portfolio avec Docker Compose](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a3-42-portfolio-compose.png?raw=true)
 
 ---
 
@@ -738,7 +738,7 @@ Le frontend communique avec l'API à travers le réseau Docker Compose (en utili
 ### 46. Route POST /api/contact
 
 Capture du succès de l'envoi du formulaire :
-![Contact Success](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-47-contact-success.png?raw=true)
+![Contact Success](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-47-contact-success.png?raw=true)
 
 ### 47. Formulaire de contact Next.js
 
@@ -747,7 +747,7 @@ Capture du succès de l'envoi du formulaire :
 ### 48. Validation Zod
 
 Capture du test avec des données invalides :
-![Zod Error](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-48-zod-error.png?raw=true)
+![Zod Error](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-48-zod-error.png?raw=true)
 
 ### 49. Gestion centralisée des erreurs
 
@@ -756,12 +756,12 @@ Capture du test avec des données invalides :
 ### 50. Headers de sécurité (Helmet)
 
 Capture des headers de sécurité (Helmet) :
-![Helmet Headers](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-50-helmet-headers.png?raw=true)
+![Helmet Headers](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-50-helmet-headers.png?raw=true)
 
 ### 51. Rate Limiting
 
 Capture du Rate Limiting (429 Too Many Requests) :
-![Rate Limit](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-51-rate-limit.png?raw=true)
+![Rate Limit](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-51-rate-limit.png?raw=true)
 
 ### 52. OWASP API Security Top 10
 
@@ -779,7 +779,7 @@ Capture du Rate Limiting (429 Too Many Requests) :
 | API10: Unsafe Consumption of APIs | Consommation non sécurisée d'API tierces | Aucune API tierce consommée pour l'instant |
 
 Capture du tableau OWASP :
-![OWASP Table](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-52-owasp-table.png?raw=true)
+![OWASP Table](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-52-owasp-table.png?raw=true)
 
 ### 53. Base de données PostgreSQL
 
@@ -806,7 +806,7 @@ Vérification :
 docker compose ps
 
 Capture de PostgreSQL en cours d'exécution :
-![PostgreSQL Up](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-53-postgresql-up.png?raw=true)
+![PostgreSQL Up](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-53-postgresql-up.png?raw=true)
 
 ### 54. Enregistrement des messages dans PostgreSQL
 
@@ -825,11 +825,11 @@ Vérification dans la base :
 docker exec -it garderie-db psql -U garderie_user -d garderie_db -c "SELECT * FROM contacts;"
 
 Capture de la réponse de l'API :
-![API Success](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-54-api-success.png?raw=true)
+![API Success](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-54-api-success.png?raw=true)
 Capture de la console du serveur :
-![Console Log](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-54-console-log.png?raw=true)
+![Console Log](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-54-console-log.png?raw=true)
 Capture du message enregistré dans la table :
-![Table contacts](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-54-postgresql-table.png?raw=true)
+![Table contacts](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-54-postgresql-table.png?raw=true)
 
 ### 55. Variables d'environnement
 
@@ -847,11 +847,11 @@ cd frontend
 npm test
 
 Capture du test frontend réussi :
-![Test Frontend](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-57-test-frontend.png?raw=true)
+![Test Frontend](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-57-test-frontend.png?raw=true)
 
 Test de l'API :
-cd backend
+cd api
 npm test
 
 Capture du test API réussi :
-![Test API](https://github.com/meryemelheni/garderie-devops/blob/main/screenshots/a4-58-test-api.png?raw=true)
+![Test API](https://github.com/meryemelheni/cv-onepage/blob/main/screenshots/a4-58-test-api.png?raw=true)
