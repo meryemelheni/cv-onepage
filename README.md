@@ -1003,5 +1003,8 @@ Capture du scan Trivy :
 
 Pour vérifier que les contrôles de sécurité bloquent bien un build dangereux, un problème a été introduit volontairement. Le pipeline s'arrête alors en erreur et l'image n'est pas publiée. Après correction, le pipeline repasse au vert.
 
-Capture du pipeline en succès :
+Capture du pipeline en échec :
+![Pipeline en échec](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-echec.png?raw=true)
+
+Capture du pipeline en succès après correction :
 ![Pipeline en succès](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
