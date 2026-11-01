@@ -127,8 +127,9 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     }
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Backend Ma Garderie démarré sur le port ${PORT}`);
-});
-
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Backend Ma Garderie démarré sur le port ${PORT}`);
+    });
+}
 module.exports = app;
