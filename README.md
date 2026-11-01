@@ -1104,3 +1104,10 @@ Le versioning sémantique (SemVer) est utilisé pour numéroter les releases : `
 - **MAJOR** : Changements incompatibles (breaking changes).
 - **MINOR** : Ajout de fonctionnalités rétrocompatibles.
 - **PATCH** : Corrections de bugs rétrocompatibles.
+
+### 84. Semantic Release
+
+La génération du changelog et des releases est automatisée avec `semantic-release`. Un workflow GitHub Actions (`release.yml`) se déclenche à chaque push sur `main`. Il analyse les messages de commit (Conventional Commits), détermine la nouvelle version (SemVer) et crée automatiquement une release GitHub avec un fichier `CHANGELOG.md` mis à jour.
+
+*Capture d'une release générée automatiquement :*
+![Release](cv-onepage/screenshots/a5-84-release.png)
