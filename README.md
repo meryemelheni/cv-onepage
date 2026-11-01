@@ -1008,3 +1008,83 @@ Capture du pipeline en échec :
 
 Capture du pipeline en succès après correction :
 ![Pipeline en succès](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
+# Activité 5 : GitHub Actions, Git Workflow et Optimisation
+
+## 70-73. Workflow GitHub Actions (CI/CD)
+
+Un workflow GitHub Actions (`.github/workflows/ci.yml`) a été mis en place pour s'exécuter à chaque `push` et `pull_request` sur la branche `main`. Il réalise les étapes suivantes :
+- **Tests** : Installation des dépendances et exécution des tests pour le frontend Next.js et l'API Express.
+- **Sécurité (SAST & Secrets)** : Scan des secrets avec Gitleaks et analyse statique du code avec Semgrep.
+- **Dépendances** : Contrôle des vulnérabilités avec `npm audit`.
+- **Docker & Scan** : Construction des images Docker (frontend et backend) et scan des vulnérabilités avec Trivy.
+
+*Capture du workflow réussi :*
+![Workflow Succès](cv-onepage/screenshots/a5-71-workflow-succes.png)
+
+*Capture du build Docker dans le workflow :*
+![Build Docker](cv-onepage/screenshots/a5-72-build-docker.png)
+
+## 74. GitHub Advanced Security (CodeQL) et comparaison avec Semgrep
+
+CodeQL a été activé via GitHub Advanced Security. L'analyse n'a détecté aucune vulnérabilité critique dans le code source (0 alerte). Semgrep, exécuté dans le workflow, n'a pas non plus signalé de problème bloquant.
+
+| Outil | Type d'analyse | Alertes détectées | Remarques |
+|---|---|---|---|
+| **CodeQL** | SAST sémantique | 0 | Aucune vulnérabilité critique détectée dans le code. |
+| **Semgrep** | SAST par motifs | 0 | Aucun problème critique signalé dans le workflow. |
+
+*Capture des résultats CodeQL :*
+![CodeQL](cv-onepage/screenshots/a5-74-codeql-resultats.png)
+
+## 75. Dependabot
+
+Dependabot a été activé pour surveiller les dépendances npm du frontend et de l'API. Il a immédiatement détecté 45 vulnérabilités (dont des critiques sur Next.js) et a généré automatiquement 7 Pull Requests pour proposer les mises à jour correctives.
+
+*Capture des vulnérabilités :*
+![Dependabot Vulnérabilités](cv-onepage/screenshots/a5-75-dependabot-vulnerabilites.png)
+
+*Capture des PRs générées :*
+![Dependabot PR](cv-onepage/screenshots/a5-75-dependabot-pr.png)
+
+## 76. Limitation des permissions du GITHUB_TOKEN
+
+Le token par défaut a été restreint via *Settings > Actions > General > Workflow permissions*. L'option **"Read repository contents and packages permissions"** a été sélectionnée. Cela garantit que si un workflow est compromis, il ne pourra pas modifier le code du dépôt.
+
+*Capture des permissions :*
+![Workflow Permissions](cv-onepage/screenshots/a5-76-workflow-permissions.png)
+
+## 77. Épinglage des Actions par SHA
+
+Les actions tierces (comme `actions/checkout`, `actions/setup-node`, etc.) ont été configurées avec leur SHA de commit complet au lieu d'un tag modifiable (ex: `@v4`). 
+
+**Pourquoi ?** Les chaînes CI/CD sont une surface d'attaque critique (Supply Chain Attack). Un tag comme `v4` peut être déplacé par un attaquant pour pointer vers un code malveillant. Utiliser un SHA immuable garantit l'intégrité du code exécuté dans le pipeline.
+
+## 78. Comparaison Jenkins et GitHub Actions
+
+| Critère | Jenkins | GitHub Actions |
+|---|---|---|
+| **Installation** | Serveur dédié, installation manuelle | Intégré à GitHub, prêt à l'emploi |
+| **Configuration** | `Jenkinsfile` | `.github/workflows/ci.yml` |
+| **Maintenance** | À la charge de l'équipe (plugins, sécurité) | Géré par GitHub |
+| **Coût** | Serveur + maintenance | Gratuit pour les dépôts publics |
+| **Écosystème** | Très riche (plugins) | Marketplace d'Actions |
+| **Sécurité** | Dépend des plugins | `GITHUB_TOKEN` avec permissions limitées |
+| **Intégration GitHub** | Via webhooks | Native (push, pull_request) |
+
+**Conclusion :** Jenkins est très flexible mais demande plus de maintenance. GitHub Actions est plus simple et mieux intégré pour les projets hébergés sur GitHub.
+
+## 79-81. Git Workflow et Protection de la branche
+
+**Convention de nommage des branches :**
+- `main` : branche de production (protégée, aucun push direct autorisé).
+- `feature/nom-de-la-fonctionnalite` : pour les nouvelles fonctionnalités.
+- `fix/nom-du-bug` : pour les corrections.
+
+**Workflow :** `branch` -> `Pull Request` -> `review` -> `merge`
+
+**Protection de la branche `main` (Point 80-81) :**
+La branche `main` est protégée. Les push directs sont interdits. Les contrôles suivants sont obligatoires avant le merge d'une Pull Request : tests, SAST, secrets, dépendances, scan d'images.
+
+*Capture d'une PR bloquée par un contrôle en échec :*
+![PR Bloquée](cv-onepage/screenshots/a5-81-pr-bloquee.png)
+<!-- Test PR -->
