@@ -1087,4 +1087,20 @@ La branche `main` est protégée. Les push directs sont interdits. Les contrôle
 
 *Capture d'une PR bloquée par un contrôle en échec :*
 ![PR Bloquée](cv-onepage/screenshots/a5-81-pr-bloquee.png)
-<!-- Test PR -->
+
+### 82. Conventional Commits
+
+Les messages de commit suivent la convention Conventional Commits :
+- `feat:` pour une nouvelle fonctionnalité (ex: `feat: ajout du formulaire de contact`)
+- `fix:` pour une correction de bug (ex: `fix: correction de la validation email`)
+- `docs:` pour la documentation (ex: `docs: mise à jour du README`)
+- `ci:` pour l'intégration continue (ex: `ci: épingler les actions par SHA`)
+
+Cela permet de générer automatiquement un changelog clair et de déterminer le numéro de version (SemVer).
+
+### 83. Semantic Versioning
+
+Le versioning sémantique (SemVer) est utilisé pour numéroter les releases : `MAJOR.MINOR.PATCH`.
+- **MAJOR** : Changements incompatibles (breaking changes).
+- **MINOR** : Ajout de fonctionnalités rétrocompatibles.
+- **PATCH** : Corrections de bugs rétrocompatibles.
