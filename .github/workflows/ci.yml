@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@60edb5dd545a775178f525247b6dda6a67c8df00 # v4.0.2
         with:
           node-version: '22'
 
@@ -42,12 +42,12 @@ jobs:
           npm test
 
       - name: Scan secrets with Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@cd611e0124588ee1c5656bc9c9a1b8b71e4164a4 # v2.3.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: SAST with Semgrep
-        uses: semgrep/semgrep-action@v1
+        uses: semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d # v1
         with:
           config: auto
         env:
@@ -70,7 +70,7 @@ jobs:
           docker build -t maryemelheni/garderie-backend:latest ./cv-onepage/api
 
       - name: Scan Docker images with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@6e7b7d1fd3e4fef0c5fa8cce1229c54b2c9bd0d8 # v0.24.0
         with:
           image-ref: 'maryemelheni/garderie-frontend:latest'
           format: 'table'
