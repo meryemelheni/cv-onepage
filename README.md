@@ -1008,3 +1008,4 @@ Capture du pipeline en échec :
 
 Capture du pipeline en succès après correction :
 ![Pipeline en succès](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a4-69-pipeline-succes.png?raw=true)
+<!-- Test PR -->
