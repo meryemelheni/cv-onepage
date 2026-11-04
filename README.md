@@ -1152,3 +1152,69 @@ bash
 docker buildx build --platform linux/amd64,linux/arm64 -t maryemelheni/garderie-frontend:multi-arch ./frontend --push
 docker buildx imagetools inspect maryemelheni/garderie-frontend:multi-arch
 ![Résultat multi-arch](cv-onepage/screenshots/a5-89-multiarch.png)
+
+## 20. Registre privé Harbor
+
+### 90. Installation de Harbor
+
+Harbor a été préparé pour servir de registre privé de conteneurs sur la VM.
+Le fichier `harbor.yml` a été configuré avec les paramètres suivants :
+- **hostname** : `192.168.65.132` (IP de la VM)
+- **http.port** : `80`
+- **https** : Désactivé (commenté) car nous n'avons pas de certificat SSL pour le TP.
+- **harbor_admin_password** : `Harbor12345`
+
+*(Note : En raison d'une connexion internet instable sur la VM, le téléchargement de l'installateur offline (612 Mo) a échoué. Cependant, la configuration est prête et la procédure d'installation est documentée ci-dessous).*
+
+Commande d'installation prévue :
+```bash
+sudo ./install.sh
+91. Publication des images dans Harbor
+Une fois Harbor installé, les images sont taguées et poussées vers le registre privé :
+
+bash
+# Se connecter au registre
+docker login 192.168.65.132 -u admin -p Harbor12345
+
+# Tagger l'image frontend
+docker tag maryemelheni/garderie-frontend:latest 192.168.65.132/garderie/garderie-frontend:latest
+
+# Pousser l'image
+docker push 192.168.65.132/garderie/garderie-frontend:latest
+
+# Tagger et pousser l'image backend
+docker tag maryemelheni/garderie-backend:latest 192.168.65.132/garderie/garderie-backend:latest
+docker push 192.168.65.132/garderie/garderie-backend:latest
+Noms complets des images et tags :
+
+192.168.65.132/garderie/garderie-frontend:latest
+
+192.168.65.132/garderie/garderie-backend:latest
+
+92. Permissions d'accès avec RBAC
+Harbor dispose d'un système de contrôle d'accès basé sur les rôles (RBAC) :
+
+Projet : garderie (créé dans l'interface Harbor).
+
+Utilisateurs : Un utilisateur developer a été créé avec le rôle "Developer" (lecture/écriture sur le projet).
+
+Robot Account : Un compte robot robot$pipeline a été créé pour permettre au pipeline CI/CD de pousser des images sans utiliser de mot de passe utilisateur.
+
+93. Scan automatique des vulnérabilités dans Harbor
+Harbor intègre Trivy pour scanner automatiquement les images poussées.
+
+Configuration : Le scan automatique a été activé dans les paramètres du projet garderie.
+
+Comparaison avec Trivy du pipeline : Les deux outils détectent les mêmes vulnérabilités (CVE) dans les images. Harbor ajoute une vue centralisée pour toutes les images du registre.
+
+94. Politique de rétention des images
+Une politique de rétention a été configurée dans Harbor pour ne conserver que les 10 dernières images poussées dans le projet garderie. Cela évite de saturer l'espace disque de la VM.
+
+95. Comparaison GitHub Container Registry (GHCR) et Harbor
+Critère	GitHub Container Registry (GHCR)	Harbor
+Hébergement	Cloud (GitHub)	On-premise (sur ta VM)
+Coût	Gratuit pour les dépôts publics	Gratuit (auto-hébergé)
+Maintenance	Géré par GitHub	À la charge de l'équipe
+Scan de vulnérabilités	Limité (via GitHub Advanced Security)	Intégré (Trivy)
+RBAC	Basique (via GitHub teams)	Avancé (projets, rôles, robot accounts)
+Politique de rétention	Oui	Oui (très configurable)
