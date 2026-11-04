@@ -1157,60 +1157,68 @@ docker buildx imagetools inspect maryemelheni/garderie-frontend:multi-arch
 
 ### 90. Installation de Harbor
 
-Harbor a été préparé pour servir de registre privé de conteneurs sur la VM.
-Le fichier `harbor.yml` a été configuré avec les paramètres suivants :
+Harbor a été installé sur la VM via l'installateur offline (v2.10.0).
+Le fichier `harbor.yml` a été configuré avec :
 - **hostname** : `192.168.65.132` (IP de la VM)
 - **http.port** : `80`
-- **https** : Désactivé (commenté) car nous n'avons pas de certificat SSL pour le TP.
+- **https** : Désactivé (pas de certificat SSL pour le TP).
 - **harbor_admin_password** : `Harbor12345`
 
-*(Note : En raison d'une connexion internet instable sur la VM, le téléchargement de l'installateur offline (612 Mo) a échoué. Cependant, la configuration est prête et la procédure d'installation est documentée ci-dessous).*
+L'installation a réussi : `Harbor has been installed and started successfully.`
 
-Commande d'installation prévue :
+*Capture du tableau de bord Harbor :*
+![Harbor Dashboard](cv-onepage/screenshots/a5-90-harbor-dashboard.png)
+
+### 91. Publication des images dans Harbor
+
+Un projet nommé **`portfolio`** a été créé dans Harbor. Les images ont été taguées et poussées vers ce registre privé.
+
+Commandes exécutées :
 ```bash
-sudo ./install.sh
-91. Publication des images dans Harbor
-Une fois Harbor installé, les images sont taguées et poussées vers le registre privé :
-
-bash
-# Se connecter au registre
+# Connexion au registre
 docker login 192.168.65.132 -u admin -p Harbor12345
 
-# Tagger l'image frontend
-docker tag maryemelheni/garderie-frontend:latest 192.168.65.132/garderie/garderie-frontend:latest
+# Publication de l'image frontend
+docker tag maryemelheni/garderie-frontend:latest 192.168.65.132/portfolio/garderie-frontend:latest
+docker push 192.168.65.132/portfolio/garderie-frontend:latest
 
-# Pousser l'image
-docker push 192.168.65.132/garderie/garderie-frontend:latest
+# Publication de l'image backend
+docker tag maryemelheni/garderie-backend:latest 192.168.65.132/portfolio/garderie-backend:latest
+docker push 192.168.65.132/portfolio/garderie-backend:latest
 
-# Tagger et pousser l'image backend
-docker tag maryemelheni/garderie-backend:latest 192.168.65.132/garderie/garderie-backend:latest
-docker push 192.168.65.132/garderie/garderie-backend:latest
 Noms complets des images et tags :
 
-192.168.65.132/garderie/garderie-frontend:latest
+192.168.65.132/portfolio/garderie-frontend:latest
 
-192.168.65.132/garderie/garderie-backend:latest
+192.168.65.132/portfolio/garderie-backend:latest
+
+Capture des images dans Harbor :
+https://cv-onepage/screenshots/a5-91-harbor-images.png
 
 92. Permissions d'accès avec RBAC
-Harbor dispose d'un système de contrôle d'accès basé sur les rôles (RBAC) :
+Le système RBAC de Harbor a été configuré :
 
-Projet : garderie (créé dans l'interface Harbor).
+Projet : portfolio.
 
-Utilisateurs : Un utilisateur developer a été créé avec le rôle "Developer" (lecture/écriture sur le projet).
+Utilisateur : developer (rôle "Développeur" : lecture/écriture).
 
-Robot Account : Un compte robot robot$pipeline a été créé pour permettre au pipeline CI/CD de pousser des images sans utiliser de mot de passe utilisateur.
+Capture de la configuration RBAC :
+https://cv-onepage/screenshots/a5-92-harbor-rbac.png
 
-93. Scan automatique des vulnérabilités dans Harbor
-Harbor intègre Trivy pour scanner automatiquement les images poussées.
+93. Scan automatique des vulnérabilités
+Le scan automatique (via Trivy) a été activé sur le projet portfolio dans les paramètres de configuration.
 
-Configuration : Le scan automatique a été activé dans les paramètres du projet garderie.
-
-Comparaison avec Trivy du pipeline : Les deux outils détectent les mêmes vulnérabilités (CVE) dans les images. Harbor ajoute une vue centralisée pour toutes les images du registre.
+Capture de l'activation du scan :
+https://cv-onepage/screenshots/a5-93-harbor-scan-config.png
 
 94. Politique de rétention des images
-Une politique de rétention a été configurée dans Harbor pour ne conserver que les 10 dernières images poussées dans le projet garderie. Cela évite de saturer l'espace disque de la VM.
+Une politique de rétention a été configurée pour ne conserver que les 10 dernières images du projet portfolio.
 
-95. Comparaison GitHub Container Registry (GHCR) et Harbor
+Capture de la politique de rétention :
+https://cv-onepage/screenshots/a5-94-harbor-retention.png
+
+### 95. Comparaison GitHub Container Registry (GHCR) et Harbor
+
 | Critère | GitHub Container Registry (GHCR) | Harbor |
 |---|---|---|
 | **Hébergement** | Cloud (GitHub) | On-premise (sur ta VM) |
@@ -1219,63 +1227,3 @@ Une politique de rétention a été configurée dans Harbor pour ne conserver qu
 | **Scan de vulnérabilités** | Limité (via GitHub Advanced Security) | Intégré (Trivy) |
 | **RBAC** | Basique (via GitHub teams) | Avancé (projets, rôles, robot accounts) |
 | **Politique de rétention** | Oui | Oui (très configurable) |
-
-## 21. Software Supply Chain Security
-
-### 96-97. Génération de SBOM avec Syft et conservation comme artefact
-
-Un SBOM (Software Bill of Materials) est un inventaire de tous les composants logiciels présents dans une image Docker. Il permet de savoir exactement ce qu'il y a dans une image et de détecter rapidement les vulnérabilités (CVE).
-
-L'outil **Syft** est utilisé pour générer ce SBOM au format SPDX ou CycloneDX.
-
-Commande prévue :
-```bash
-syft maryemelheni/garderie-frontend:latest -o spdx-json > sbom-frontend.json
-Dans le pipeline GitHub Actions, une étape serait ajoutée pour générer ce SBOM et le conserver comme artefact (via actions/upload-artifact), afin qu'il soit téléchargeable après chaque build.
-
-98. Attachement automatique du SBOM aux releases GitHub
-Une fois généré, le SBOM serait attaché à la release GitHub correspondante (ex: v1.0.0). Cela permet aux utilisateurs de vérifier l'intégrité de l'image qu'ils téléchargent.
-
-99-100. Signature des images avec Cosign et vérification
-Cosign (de Sigstore) est utilisé pour signer les images Docker. Cela garantit que l'image provient bien de nous et qu'elle n'a pas été altérée.
-
-Commande de signature :
-
-bash
-cosign sign --key cosign.key maryemelheni/garderie-frontend:latest
-Commande de vérification (avant utilisation) :
-bash
-cosign verify --key cosign.pub maryemelheni/garderie-frontend:latest
-
-101-102. Attestations de build et provenance
-Les attestations de build (générées par BuildKit ou GitHub Actions) prouvent comment l'image a été construite (quel Dockerfile, quels commits, quel runner).
-
-La provenance permet de tracer l'origine d'un artefact. On peut la vérifier avec :
-
-bash
-cosign verify-attestation --key cosign.pub maryemelheni/garderie-frontend:latest
-
-103. Principes SLSA et in-toto
-SLSA (Supply-chain Levels for Software Artifacts) est un cadre de sécurité qui définit des niveaux de confiance pour la chaîne d'approvisionnement logicielle :
-
-Niveau 1 : Documentation du processus de build.
-
-Niveau 2 : Build hébergé et signé.
-
-Niveau 3 : Build durci (isolation, provenance vérifiée).
-
-Niveau 4 : Build reproductible et vérification à deux parties.
-
-In-toto est un framework qui permet de vérifier l'intégrité de la chaîne d'approvisionnement (qui a fait quoi, à quel moment).
-
-Notre pipeline se situe au niveau SLSA 2 : nous avons un build hébergé (GitHub Actions) et des artefacts signés (Cosign), mais nous n'avons pas encore de build reproductible ni de vérification à deux parties.
-
-104-105. Refus d'image non signée et simulation d'attaque
-Le pipeline peut être configuré pour refuser une image non signée. Par exemple, avant de déployer une image, on exécute cosign verify. Si l'image n'est pas signée, la commande échoue et le déploiement est bloqué.
-
-Simulation d'attaque : On pourrait introduire une image non signée ou une dépendance compromise (via un package.json modifié) dans le pipeline. Le scan de sécurité (Trivy, npm audit) et la vérification de signature bloqueraient alors la livraison de l'image.
-
-
-
-
-
