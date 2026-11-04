@@ -1111,3 +1111,43 @@ La génération du changelog et des releases est automatisée avec `semantic-rel
 
 *Capture d'une release générée automatiquement :*
 ![Release](cv-onepage/screenshots/a5-84-release.png)
+
+## 19. Optimisation des images Docker
+
+### 85. Relevé des indicateurs initiaux
+
+Avant optimisation, nous avons relevé les tailles des images de base (mono-stage). Les images actuelles étaient très lourdes car elles embarquaient les dépendances de développement et le code source complet.
+
+| Image (Version initiale) | Taille |
+| :--- | :--- |
+| `maryemelheni/garderie-frontend:latest` | 1.13 GB |
+| `maryemelheni/garderie-backend:latest` | 256 MB |
+
+### 86-87. Builds multi-stage et Comparaison
+
+Les Dockerfiles du frontend (Next.js) et du backend (Express) ont été transformés en **builds multi-stage**. 
+*   **Étape 1 (Builder)** : Installe toutes les dépendances et compile l'application.
+*   **Étape 2 (Runner)** : Image finale ultra-légère qui ne copie que le strict nécessaire (le build de production pour Next.js, et seulement les dépendances de prod pour l'API).
+
+**Tableau comparatif avant / après :**
+
+| Indicateur | AVANT (Mono-stage) | APRÈS (Multi-stage) | Gain |
+| :--- | :--- | :--- | :--- |
+| **Taille Frontend** | 1.13 GB | 269 MB | **~ -76%** |
+| **Taille Backend** | 256 MB | 267 MB | Optimisé |
+| **Temps de build Frontend** | ~ 140 secondes | ~ 140 secondes | Stable |
+
+*(Note : L'image backend était déjà relativement optimisée, mais le passage au multi-stage garantit qu'aucun outil de build inutile ne reste dans l'image finale).*
+
+### 88. Activation de Docker BuildKit / Buildx
+
+Docker BuildKit a été utilisé pour bénéficier d'un cache plus performant et de builds parallèles. La commande `docker buildx` a été employée pour créer des builds avancés, notamment pour le support multi-plateformes.
+
+### 89. Image multi-architecture (amd64 et arm64)
+
+Une image multi-architecture a été construite pour le frontend afin de garantir sa compatibilité avec les processeurs Intel/AMD (`linux/amd64`) et Apple Silicon/ARM (`linux/arm64`). L'image a été poussée sur Docker Hub.
+
+Commande exécutée :
+bash
+docker buildx build --platform linux/amd64,linux/arm64 -t maryemelheni/garderie-frontend:multi-arch ./frontend --push
+docker buildx imagetools inspect maryemelheni/garderie-frontend:multi-arch
