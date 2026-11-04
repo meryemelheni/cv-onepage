@@ -1211,10 +1211,11 @@ Comparaison avec Trivy du pipeline : Les deux outils détectent les mêmes vuln�
 Une politique de rétention a été configurée dans Harbor pour ne conserver que les 10 dernières images poussées dans le projet garderie. Cela évite de saturer l'espace disque de la VM.
 
 95. Comparaison GitHub Container Registry (GHCR) et Harbor
-Critère	GitHub Container Registry (GHCR)	Harbor
-Hébergement	Cloud (GitHub)	On-premise (sur ta VM)
-Coût	Gratuit pour les dépôts publics	Gratuit (auto-hébergé)
-Maintenance	Géré par GitHub	À la charge de l'équipe
-Scan de vulnérabilités	Limité (via GitHub Advanced Security)	Intégré (Trivy)
-RBAC	Basique (via GitHub teams)	Avancé (projets, rôles, robot accounts)
-Politique de rétention	Oui	Oui (très configurable)
+| Critère | GitHub Container Registry (GHCR) | Harbor |
+|---|---|---|
+| **Hébergement** | Cloud (GitHub) | On-premise (sur ta VM) |
+| **Coût** | Gratuit pour les dépôts publics | Gratuit (auto-hébergé) |
+| **Maintenance** | Géré par GitHub | À la charge de l'équipe |
+| **Scan de vulnérabilités** | Limité (via GitHub Advanced Security) | Intégré (Trivy) |
+| **RBAC** | Basique (via GitHub teams) | Avancé (projets, rôles, robot accounts) |
+| **Politique de rétention** | Oui | Oui (très configurable) |
