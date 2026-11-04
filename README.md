@@ -1219,3 +1219,63 @@ Une politique de rétention a été configurée dans Harbor pour ne conserver qu
 | **Scan de vulnérabilités** | Limité (via GitHub Advanced Security) | Intégré (Trivy) |
 | **RBAC** | Basique (via GitHub teams) | Avancé (projets, rôles, robot accounts) |
 | **Politique de rétention** | Oui | Oui (très configurable) |
+
+## 21. Software Supply Chain Security
+
+### 96-97. Génération de SBOM avec Syft et conservation comme artefact
+
+Un SBOM (Software Bill of Materials) est un inventaire de tous les composants logiciels présents dans une image Docker. Il permet de savoir exactement ce qu'il y a dans une image et de détecter rapidement les vulnérabilités (CVE).
+
+L'outil **Syft** est utilisé pour générer ce SBOM au format SPDX ou CycloneDX.
+
+Commande prévue :
+```bash
+syft maryemelheni/garderie-frontend:latest -o spdx-json > sbom-frontend.json
+Dans le pipeline GitHub Actions, une étape serait ajoutée pour générer ce SBOM et le conserver comme artefact (via actions/upload-artifact), afin qu'il soit téléchargeable après chaque build.
+
+98. Attachement automatique du SBOM aux releases GitHub
+Une fois généré, le SBOM serait attaché à la release GitHub correspondante (ex: v1.0.0). Cela permet aux utilisateurs de vérifier l'intégrité de l'image qu'ils téléchargent.
+
+99-100. Signature des images avec Cosign et vérification
+Cosign (de Sigstore) est utilisé pour signer les images Docker. Cela garantit que l'image provient bien de nous et qu'elle n'a pas été altérée.
+
+Commande de signature :
+
+bash
+cosign sign --key cosign.key maryemelheni/garderie-frontend:latest
+Commande de vérification (avant utilisation) :
+bash
+cosign verify --key cosign.pub maryemelheni/garderie-frontend:latest
+
+101-102. Attestations de build et provenance
+Les attestations de build (générées par BuildKit ou GitHub Actions) prouvent comment l'image a été construite (quel Dockerfile, quels commits, quel runner).
+
+La provenance permet de tracer l'origine d'un artefact. On peut la vérifier avec :
+
+bash
+cosign verify-attestation --key cosign.pub maryemelheni/garderie-frontend:latest
+
+103. Principes SLSA et in-toto
+SLSA (Supply-chain Levels for Software Artifacts) est un cadre de sécurité qui définit des niveaux de confiance pour la chaîne d'approvisionnement logicielle :
+
+Niveau 1 : Documentation du processus de build.
+
+Niveau 2 : Build hébergé et signé.
+
+Niveau 3 : Build durci (isolation, provenance vérifiée).
+
+Niveau 4 : Build reproductible et vérification à deux parties.
+
+In-toto est un framework qui permet de vérifier l'intégrité de la chaîne d'approvisionnement (qui a fait quoi, à quel moment).
+
+Notre pipeline se situe au niveau SLSA 2 : nous avons un build hébergé (GitHub Actions) et des artefacts signés (Cosign), mais nous n'avons pas encore de build reproductible ni de vérification à deux parties.
+
+104-105. Refus d'image non signée et simulation d'attaque
+Le pipeline peut être configuré pour refuser une image non signée. Par exemple, avant de déployer une image, on exécute cosign verify. Si l'image n'est pas signée, la commande échoue et le déploiement est bloqué.
+
+Simulation d'attaque : On pourrait introduire une image non signée ou une dépendance compromise (via un package.json modifié) dans le pipeline. Le scan de sécurité (Trivy, npm audit) et la vérification de signature bloqueraient alors la livraison de l'image.
+
+
+
+
+
