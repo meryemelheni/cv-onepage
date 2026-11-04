@@ -1167,7 +1167,7 @@ Le fichier `harbor.yml` a été configuré avec :
 L'installation a réussi : `Harbor has been installed and started successfully.`
 
 *Capture du tableau de bord Harbor :*
-![Harbor Dashboard](cv-onepage/screenshots/a5-90-harbor-dashboard.png)
+![Harbor Dashboard](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a5-90-harbor-dashboard.png?raw=true)
 
 ### 91. Publication des images dans Harbor
 
@@ -1193,7 +1193,7 @@ Noms complets des images et tags :
 192.168.65.132/portfolio/garderie-backend:latest
 
 Capture des images dans Harbor :
-https://cv-onepage/screenshots/a5-91-harbor-images.png
+![Harbor Images](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a5-91-harbor-images.png?raw=true)
 
 92. Permissions d'accès avec RBAC
 Le système RBAC de Harbor a été configuré :
@@ -1202,20 +1202,20 @@ Projet : portfolio.
 
 Utilisateur : developer (rôle "Développeur" : lecture/écriture).
 
-Capture de la configuration RBAC :
-https://cv-onepage/screenshots/a5-92-harbor-rbac.png
+*Capture de la configuration RBAC :*
+![Harbor RBAC](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a5-92-harbor-rbac.png?raw=true)
 
 93. Scan automatique des vulnérabilités
 Le scan automatique (via Trivy) a été activé sur le projet portfolio dans les paramètres de configuration.
 
-Capture de l'activation du scan :
-https://cv-onepage/screenshots/a5-93-harbor-scan-config.png
+*Capture de l'activation du scan :*
+![Harbor Scan Config](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a5-93-harbor-scan-config.png?raw=true)
 
 94. Politique de rétention des images
 Une politique de rétention a été configurée pour ne conserver que les 10 dernières images du projet portfolio.
 
-Capture de la politique de rétention :
-https://cv-onepage/screenshots/a5-94-harbor-retention.png
+*Capture de la politique de rétention :*
+![Harbor Retention](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a5-94-harbor-retention.png?raw=true)
 
 ### 95. Comparaison GitHub Container Registry (GHCR) et Harbor
 
