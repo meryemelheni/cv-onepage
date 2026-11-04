@@ -1151,3 +1151,4 @@ Commande exécutée :
 bash
 docker buildx build --platform linux/amd64,linux/arm64 -t maryemelheni/garderie-frontend:multi-arch ./frontend --push
 docker buildx imagetools inspect maryemelheni/garderie-frontend:multi-arch
+![Résultat multi-arch](cv-onepage/screenshots/a5-89-multiarch.png)
