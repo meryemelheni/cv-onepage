@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/meryemelheni/cv-onepage/compare/v1.0.2...v1.0.3) (2026-11-06)
+
+
+### Bug Fixes
+
+* utilisation des liens raw pour les images Harbor ([111e719](https://github.com/meryemelheni/cv-onepage/commit/111e7195cd72279e9c8e46d4bda30a6720f13619))
+
 ## [1.0.2](https://github.com/meryemelheni/cv-onepage/compare/v1.0.1...v1.0.2) (2026-11-06)
 
 
