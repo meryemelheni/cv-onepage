@@ -1238,7 +1238,8 @@ L'outil **Syft** est utilisé pour générer ce SBOM au format SPDX ou CycloneDX
 Commande prévue :
 ```bash
 syft maryemelheni/garderie-frontend:latest -o spdx-json > sbom-frontend.json
-Dans le pipeline GitHub Actions, une étape serait ajoutée pour générer ce SBOM et le conserver comme artefact (via actions/upload-artifact), afin qu'il soit téléchargeable après chaque build.
+Capture de la génération du SBOM avec Syft :
+![Syft SBOM](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-96-syft.png)
 
 98. Attachement automatique du SBOM aux releases GitHub
 Une fois généré, le SBOM serait attaché à la release GitHub correspondante (ex: v1.0.0). Cela permet aux utilisateurs de vérifier l'intégrité de l'image qu'ils téléchargent.
@@ -1247,13 +1248,13 @@ Une fois généré, le SBOM serait attaché à la release GitHub correspondante 
 Cosign (de Sigstore) est utilisé pour signer les images Docker. Cela garantit que l'image provient bien de nous et qu'elle n'a pas été altérée.
 
 Commande de signature :
-
-bash
 cosign sign --key cosign.key maryemelheni/garderie-frontend:latest
-Commande de vérification (avant utilisation) :
 
-bash
+Commande de vérification (avant utilisation) :
 cosign verify --key cosign.pub maryemelheni/garderie-frontend:latest
+Capture de la vérification de la signature :
+![Cosign Verify](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-100-cosign.png)
+
 101-102. Attestations de build et provenance
 Les attestations de build (générées par BuildKit ou GitHub Actions) prouvent comment l'image a été construite (quel Dockerfile, quels commits, quel runner).
 
