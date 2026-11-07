@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/meryemelheni/cv-onepage/compare/v1.0.3...v1.0.4) (2026-11-07)
+
+
+### Bug Fixes
+
+* deplacement de l'image cosign dans le dossier screenshots ([6cba002](https://github.com/meryemelheni/cv-onepage/commit/6cba002b31873d150b4ec24223cbf5fa45cd4125))
+
 ## [1.0.3](https://github.com/meryemelheni/cv-onepage/compare/v1.0.2...v1.0.3) (2026-11-06)
 
 
