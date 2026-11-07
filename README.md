@@ -1159,6 +1159,7 @@ docker buildx imagetools inspect maryemelheni/garderie-frontend:multi-arch
 
 Harbor a été installé sur la VM via l'installateur offline (v2.10.0).
 Le fichier `harbor.yml` a été configuré avec :
+
 - **hostname** : `192.168.65.132` (IP de la VM)
 - **http.port** : `80`
 - **https** : Désactivé (pas de certificat SSL pour le TP).
@@ -1167,12 +1168,15 @@ Le fichier `harbor.yml` a été configuré avec :
 L'installation a réussi : `Harbor has been installed and started successfully.`
 
 *Capture du tableau de bord Harbor :*
+
 ![Harbor Dashboard](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-90-harbor-dashboard.png)
+
 ### 91. Publication des images dans Harbor
 
 Un projet nommé **`portfolio`** a été créé dans Harbor. Les images ont été taguées et poussées vers ce registre privé.
 
 Commandes exécutées :
+
 ```bash
 # Connexion au registre
 docker login 192.168.65.132 -u admin -p Harbor12345
@@ -1184,43 +1188,49 @@ docker push 192.168.65.132/portfolio/garderie-frontend:latest
 # Publication de l'image backend
 docker tag maryemelheni/garderie-backend:latest 192.168.65.132/portfolio/garderie-backend:latest
 docker push 192.168.65.132/portfolio/garderie-backend:latest
+```
 
 Noms complets des images et tags :
 
-192.168.65.132/portfolio/garderie-frontend:latest
+- `192.168.65.132/portfolio/garderie-frontend:latest`
+- `192.168.65.132/portfolio/garderie-backend:latest`
 
-192.168.65.132/portfolio/garderie-backend:latest
+*Capture des images dans Harbor :*
 
-Capture des images dans Harbor :
 ![Harbor Images](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-91-harbor-images.png)
 
-92. Permissions d'accès avec RBAC
+### 92. Permissions d'accès avec RBAC
+
 Le système RBAC de Harbor a été configuré :
 
-Projet : portfolio.
-
-Utilisateur : developer (rôle "Développeur" : lecture/écriture).
+- Projet : `portfolio`
+- Utilisateur : `developer` (rôle "Développeur" : lecture/écriture)
 
 *Capture de la configuration RBAC :*
+
 ![Harbor RBAC](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-92-harbor-rbac.png)
 
-93. Scan automatique des vulnérabilités
-Le scan automatique (via Trivy) a été activé sur le projet portfolio dans les paramètres de configuration.
+### 93. Scan automatique des vulnérabilités
+
+Le scan automatique (via Trivy) a été activé sur le projet `portfolio` dans les paramètres de configuration.
 
 *Capture de l'activation du scan :*
+
 ![Harbor Scan Config](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-93-harbor-scan-config.png)
 
-94. Politique de rétention des images
-Une politique de rétention a été configurée pour ne conserver que les 10 dernières images du projet portfolio.
+### 94. Politique de rétention des images
+
+Une politique de rétention a été configurée pour ne conserver que les 10 dernières images du projet `portfolio`.
 
 *Capture de la politique de rétention :*
+
 ![Harbor Retention](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-94-harbor-retention.png)
 
 ### 95. Comparaison GitHub Container Registry (GHCR) et Harbor
 
 | Critère | GitHub Container Registry (GHCR) | Harbor |
 |---|---|---|
-| **Hébergement** | Cloud (GitHub) | On-premise (sur ta VM) |
+| **Hébergement** | Cloud (GitHub) | On-premise (sur la VM) |
 | **Coût** | Gratuit pour les dépôts publics | Gratuit (auto-hébergé) |
 | **Maintenance** | Géré par GitHub | À la charge de l'équipe |
 | **Scan de vulnérabilités** | Limité (via GitHub Advanced Security) | Intégré (Trivy) |
@@ -1235,49 +1245,65 @@ Un SBOM (Software Bill of Materials) est un inventaire de tous les composants lo
 
 L'outil **Syft** est utilisé pour générer ce SBOM au format SPDX ou CycloneDX.
 
-Commande prévue :
+Commande :
+
 ```bash
 syft maryemelheni/garderie-frontend:latest -o spdx-json > sbom-frontend.json
-Capture de la génération du SBOM avec Syft :
+```
+
+*Capture de la génération du SBOM avec Syft :*
+
 ![Syft SBOM](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-96-syft.png)
 
-98. Attachement automatique du SBOM aux releases GitHub
-Une fois généré, le SBOM serait attaché à la release GitHub correspondante (ex: v1.0.0). Cela permet aux utilisateurs de vérifier l'intégrité de l'image qu'ils téléchargent.
+### 98. Attachement automatique du SBOM aux releases GitHub
 
-99-100. Signature des images avec Cosign et vérification
+Une fois généré, le SBOM serait attaché à la release GitHub correspondante (ex : v1.0.0). Cela permet aux utilisateurs de vérifier l'intégrité de l'image qu'ils téléchargent.
+
+### 99-100. Signature des images avec Cosign et vérification
+
 Cosign (de Sigstore) est utilisé pour signer les images Docker. Cela garantit que l'image provient bien de nous et qu'elle n'a pas été altérée.
 
 Commande de signature :
+
+```bash
 cosign sign --key cosign.key maryemelheni/garderie-frontend:latest
+```
 
 Commande de vérification (avant utilisation) :
+
+```bash
 cosign verify --key cosign.pub maryemelheni/garderie-frontend:latest
-Capture de la vérification de la signature :
+```
+
+*Capture de la vérification de la signature :*
+
 ![Cosign Verify](https://raw.githubusercontent.com/meryemelheni/cv-onepage/refs/heads/main/cv-onepage/screenshots/a5-100-cosign.png)
 
-101-102. Attestations de build et provenance
+### 101-102. Attestations de build et provenance
+
 Les attestations de build (générées par BuildKit ou GitHub Actions) prouvent comment l'image a été construite (quel Dockerfile, quels commits, quel runner).
 
 La provenance permet de tracer l'origine d'un artefact. On peut la vérifier avec :
 
-bash
+```bash
 cosign verify-attestation --key cosign.pub maryemelheni/garderie-frontend:latest
-103. Principes SLSA et in-toto
+```
+
+### 103. Principes SLSA et in-toto
+
 SLSA (Supply-chain Levels for Software Artifacts) est un cadre de sécurité qui définit des niveaux de confiance pour la chaîne d'approvisionnement logicielle :
 
-Niveau 1 : Documentation du processus de build.
-
-Niveau 2 : Build hébergé et signé.
-
-Niveau 3 : Build durci (isolation, provenance vérifiée).
-
-Niveau 4 : Build reproductible et vérification à deux parties.
+- **Niveau 1** : Documentation du processus de build.
+- **Niveau 2** : Build hébergé et signé.
+- **Niveau 3** : Build durci (isolation, provenance vérifiée).
+- **Niveau 4** : Build reproductible et vérification à deux parties.
 
 In-toto est un framework qui permet de vérifier l'intégrité de la chaîne d'approvisionnement (qui a fait quoi, à quel moment).
 
 Notre pipeline se situe au niveau SLSA 2 : nous avons un build hébergé (GitHub Actions) et des artefacts signés (Cosign), mais nous n'avons pas encore de build reproductible ni de vérification à deux parties.
 
-104-105. Refus d'image non signée et simulation d'attaque
-Le pipeline peut être configuré pour refuser une image non signée. Par exemple, avant de déployer une image, on exécute cosign verify. Si l'image n'est pas signée, la commande échoue et le déploiement est bloqué.
+### 104-105. Refus d'image non signée et simulation d'attaque
 
-Scénario d'attaque simulé : Si une image non signée ou une dépendance compromise (via un package.json modifié) était introduite dans le pipeline, les contrôles de sécurité (Trivy, npm audit) et la vérification de signature (Cosign) bloqueraient la livraison de l'image, empêchant ainsi la compromission de la chaîne d'approvisionnement.
+Le pipeline peut être configuré pour refuser une image non signée. Par exemple, avant de déployer une image, on exécute `cosign verify`. Si l'image n'est pas signée, la commande échoue et le déploiement est bloqué.
+
+**Scénario d'attaque simulé** : si une image non signée ou une dépendance compromise (via un `package.json` modifié) était introduite dans le pipeline, les contrôles de sécurité (Trivy, `npm audit`) et la vérification de signature (Cosign) bloqueraient la livraison de l'image, empêchant ainsi la compromission de la chaîne d'approvisionnement.
