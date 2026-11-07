@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/meryemelheni/cv-onepage/compare/v1.0.4...v1.0.5) (2026-11-07)
+
+
+### Bug Fixes
+
+* correction des URLs des captures d'écran ([4538cf1](https://github.com/meryemelheni/cv-onepage/commit/4538cf13745cda7ff128b8aa010fabf7b88c176f))
+
 ## [1.0.4](https://github.com/meryemelheni/cv-onepage/compare/v1.0.3...v1.0.4) (2026-11-07)
 
 
