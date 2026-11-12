@@ -1307,3 +1307,122 @@ Notre pipeline se situe au niveau SLSA 2 : nous avons un build hébergé (GitHub
 Le pipeline peut être configuré pour refuser une image non signée. Par exemple, avant de déployer une image, on exécute `cosign verify`. Si l'image n'est pas signée, la commande échoue et le déploiement est bloqué.
 
 **Scénario d'attaque simulé** : si une image non signée ou une dépendance compromise (via un `package.json` modifié) était introduite dans le pipeline, les contrôles de sécurité (Trivy, `npm audit`) et la vérification de signature (Cosign) bloqueraient la livraison de l'image, empêchant ainsi la compromission de la chaîne d'approvisionnement.
+
+# Activité 6 : Cloud local avec Floci et Terraform
+
+## 22. Cloud local avec Floci
+
+### 106. Installation de Floci
+
+Floci a été lancé en tant que conteneur Docker.
+
+```bash
+docker run -d --name floci -p 4566:4566 floci/floci
+docker ps
+https://cv-onepage/screenshots/a6-106-floci.png
+
+107. Configuration AWS CLI
+bash
+aws configure --profile floci
+# (Access Key: test, Secret Key: test, Region: us-east-1, Format: json)
+aws --profile floci --endpoint-url http://localhost:4566 sts get-caller-identity
+https://cv-onepage/screenshots/a6-107-awscli.png
+
+108. Création d'un bucket S3
+bash
+aws --profile floci --endpoint-url http://localhost:4566 s3 mb s3://mon-bucket-local
+aws --profile floci --endpoint-url http://localhost:4566 s3 ls
+https://cv-onepage/screenshots/a6-108-s3-create.png
+
+109. Upload et Download S3
+bash
+echo "Hello Floci" > test.txt
+aws --profile floci --endpoint-url http://localhost:4566 s3 cp test.txt s3://mon-bucket-local/
+aws --profile floci --endpoint-url http://localhost:4566 s3 cp s3://mon-bucket-local/test.txt test-recup.txt
+cat test-recup.txt
+https://cv-onepage/screenshots/a6-109-s3-upload.png
+
+110. File SQS
+bash
+curl -X POST "http://localhost:4566/000000000000/ma-file" -H "Content-Type: application/x-www-form-urlencoded" -d "Action=CreateQueue&QueueName=ma-file&Version=2012-11-05"
+curl -X POST "http://localhost:4566/000000000000/ma-file" -H "Content-Type: application/x-www-form-urlencoded" -d "Action=SendMessage&MessageBody=Message+test&Version=2012-11-05"
+curl -X POST "http://localhost:4566/000000000000/ma-file" -H "Content-Type: application/x-www-form-urlencoded" -d "Action=ReceiveMessage&Version=2012-11-05"
+https://cv-onepage/screenshots/a6-110-sqs.png
+
+111. Table DynamoDB
+bash
+curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.0" -H "X-Amz-Target: DynamoDB_20120810.CreateTable" -d '{"TableName": "MaTable", "KeySchema": [{"AttributeName": "Id", "KeyType": "HASH"}], "AttributeDefinitions": [{"AttributeName": "Id", "AttributeType": "S"}], "BillingMode": "PAY_PER_REQUEST"}'
+curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.0" -H "X-Amz-Target: DynamoDB_20120810.PutItem" -d '{"TableName": "MaTable", "Item": {"Id": {"S": "1"}, "Nom": {"S": "Test"}}}'
+curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.0" -H "X-Amz-Target: DynamoDB_20120810.Scan" -d '{"TableName": "MaTable"}'
+https://cv-onepage/screenshots/a6-111-dynamodb.png
+
+112. Fonction Lambda
+bash
+echo 'exports.handler = async (event) => { return "Hello from Lambda"; };' > index.js
+zip function.zip index.js
+curl -X POST "http://localhost:4566/2015-03-31/functions" -H "Content-Type: application/json" -d '{"FunctionName": "MaLambda", "Runtime": "nodejs18.x", "Role": "arn:aws:iam::000000000000:role/lambda-role", "Handler": "index.handler", "Code": {"ZipFile": "'$(base64 -w0 function.zip)'"}}'
+curl -X POST "http://localhost:4566/2015-03-31/functions/MaLambda/invocations" -H "Content-Type: application/json" -d '{}'
+https://cv-onepage/screenshots/a6-112-lambda.png
+
+113. Secrets Manager
+bash
+curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.1" -H "X-Amz-Target: secretsmanager.CreateSecret" -d '{"Name": "MonSecret", "SecretString": "motdepasse123"}'
+curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.1" -H "X-Amz-Target: secretsmanager.GetSecretValue" -d '{"SecretId": "MonSecret"}'
+https://cv-onepage/screenshots/a6-113-secrets.png
+
+114. Communication API Express avec Floci
+L'API Express a été modifiée pour envoyer un message dans SQS lors d'un appel sur la route /api/floci-contact.
+
+javascript
+app.post("/api/floci-contact", async (req, res) => {
+  try {
+    const command = new SendMessageCommand({
+      QueueUrl: "http://localhost:4566/000000000000/ma-file",
+      MessageBody: JSON.stringify(req.body),
+    });
+    const response = await sqsClient.send(command);
+    res.json({ message: "Message envoyé à Floci", messageId: response.MessageId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+Test :
+
+bash
+curl -X POST http://localhost:3001/api/floci-contact -H "Content-Type: application/json" -d '{"nom": "Test", "email": "test@test.com"}'
+https://cv-onepage/screenshots/a6-114-api-floci.png
+
+115. Floci dans Docker Compose
+yaml
+  floci:
+    image: floci/floci
+    container_name: floci-compose
+    ports:
+      - "4566:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+https://cv-onepage/screenshots/a6-115-docker-compose-floci.png
+
+116. Floci dans GitHub Actions
+Le workflow ci.yml a été modifié pour ajouter Floci comme service container.
+
+yaml
+    services:
+      floci:
+        image: floci/floci
+        ports:
+          - 4566:4566
+        options: >-
+          --health-cmd "curl -f http://localhost:4566/_floci/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+https://cv-onepage/screenshots/a6-116-github-actions-floci.png
+
+117. Comparaison Floci, LocalStack et AWS réel
+Critère	Floci	LocalStack	Cloud AWS réel
+Licence	Open Source (gratuit)	Freemium (version Pro payante)	Payant à l'usage
+Services	S3, SQS, DynamoDB, Lambda, Secrets Manager	Très large (S3, SQS, Lambda, RDS, etc.)	Tous les services AWS
+Fidélité	Bonne pour les tests de base	Très bonne (proche du réel)	Parfaite
+Coût	Gratuit	Gratuit en Community, payant en Pro	Payant
+Usage en CI	Léger, rapide, parfait pour les tests	Plus lourd, mais complet	Déconseillé (coût)
