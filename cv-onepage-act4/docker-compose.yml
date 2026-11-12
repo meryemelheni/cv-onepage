@@ -1,0 +1,57 @@
+# Utilisation :
+#   Développement local (build des images) : docker compose up --build
+#   Déploiement VM (images Docker Hub)     : docker compose pull && docker compose up -d --no-build
+# DOCKERHUB_USER est lu depuis l'environnement ou depuis un fichier .env
+services:
+  backend:
+    build: /home/meryem/portfolio-activite3/api
+    image: ${DOCKERHUB_USER:-votre_user}/garderie-backend:latest
+    container_name: garderie-backend
+    environment:
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    networks:
+      - garderie-net
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: garderie-db
+    environment:
+      POSTGRES_USER: garderie_user
+      POSTGRES_PASSWORD: garderie_password
+      POSTGRES_DB: garderie_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - garderie-net
+  frontend:
+    build: /home/meryem/portfolio-activite3/portfolio-nextjs
+    image: ${DOCKERHUB_USER:-votre_user}/garderie-frontend:latest
+    container_name: garderie-frontend
+    environment:
+      - API_URL=http://backend:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - garderie-net
+    restart: unless-stopped
+  floci:
+    image: floci/floci
+    container_name: floci-compose
+    ports:
+      - "4566:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  garderie-net:
+    driver: bridge
+    
+volumes:
+  pgdata:
