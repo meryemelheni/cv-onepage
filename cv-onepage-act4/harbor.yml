@@ -1,0 +1,29 @@
+hostname: 192.168.65.132
+
+http:
+  port: 80
+
+# https:
+#   port: 443
+#   certificate: /your/certificate/path
+#   private_key: /your/private/key/path
+
+harbor_admin_password: Harbor12345
+
+database:
+  password: root123
+  max_idle_conns: 100
+  max_open_conns: 900
+
+data_volume: /data
+
+trivy:
+  ignore_unfixed: false
+  skip_update: false
+  offline_scan: false
+
+jobservice:
+  max_job_workers: 10
+
+notification:
+  webhook_job_max_retry: 10

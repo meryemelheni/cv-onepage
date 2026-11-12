@@ -3,3 +3,5 @@ node_modules/
 .vagrant/
 .env
 *.log
+*.tgz
+harbor/
