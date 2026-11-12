@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/meryemelheni/cv-onepage/compare/v1.0.5...v1.1.0) (2026-11-12)
+
+
+### Features
+
+* ajout de floci et act6 sans fichier lourd ([40661fc](https://github.com/meryemelheni/cv-onepage/commit/40661fc165a8bdbd88b6ca471df36d79c0620b69))
+
 ## [1.0.5](https://github.com/meryemelheni/cv-onepage/compare/v1.0.4...v1.0.5) (2026-11-07)
 
 
