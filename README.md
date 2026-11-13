@@ -1426,3 +1426,126 @@ Services	S3, SQS, DynamoDB, Lambda, Secrets Manager	Très large (S3, SQS, Lambda
 Fidélité	Bonne pour les tests de base	Très bonne (proche du réel)	Parfaite
 Coût	Gratuit	Gratuit en Community, payant en Pro	Payant
 Usage en CI	Léger, rapide, parfait pour les tests	Plus lourd, mais complet	Déconseillé (coût)
+
+## 23. Introduction à Terraform
+
+### 118. Installation de Terraform
+
+```bash
+terraform version
+Capture de la version de Terraform :
+https://cv-onepage/screenshots/a6-118-terraform-version.png
+
+119-120. Premier projet Terraform
+Les fichiers providers.tf, main.tf, variables.tf et outputs.tf ont été créés dans le dossier terraform/.
+
+Commandes exécutées :
+
+bash
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+Capture du plan Terraform :
+https://cv-onepage/screenshots/a6-120-terraform-plan.png
+
+121. Création des ressources dans Floci
+bash
+terraform apply -auto-approve
+Capture de l'application Terraform :
+https://cv-onepage/screenshots/a6-121-terraform-apply.png
+
+122. Vérification avec AWS CLI
+bash
+aws --profile floci --endpoint-url http://localhost:4566 s3 ls
+aws --profile floci --endpoint-url http://localhost:4566 sqs list-queues
+aws --profile floci --endpoint-url http://localhost:4566 dynamodb list-tables
+Capture de la vérification :
+https://cv-onepage/screenshots/a6-122-terraform-verify.png
+
+123. Destruction des ressources
+bash
+terraform destroy -auto-approve
+Capture de la destruction :
+https://cv-onepage/screenshots/a6-123-terraform-destroy.png
+
+24. Terraform avancé
+124. Modules réutilisables
+La configuration a été transformée en module réutilisable dans modules/storage/, utilisé pour deux environnements (dev et prod).
+
+Capture des modules :
+https://cv-onepage/screenshots/a6-124-terraform-modules.png
+
+125. Configurations séparées (dev, staging, prod)
+Les dossiers environments/dev, environments/staging et environments/prod ont été créés.
+
+bash
+cd environments/dev
+terraform init && terraform apply -auto-approve
+Capture de l'environnement dev :
+https://cv-onepage/screenshots/a6-125-terraform-env-dev.png
+
+126. Rôle du fichier Terraform State
+Le fichier terraform.tfstate stocke l'état actuel de l'infrastructure. Il permet à Terraform de savoir quelles ressources existent déjà, d'éviter les doublons, et de calculer les différences lors d'un plan ou d'un apply. Il ne faut jamais le versionner sur Git car il peut contenir des informations sensibles.
+
+127-128. Backend distant S3 et verrouillage du state
+Le backend S3 a été configuré dans environments/dev/providers.tf pour stocker le state dans Floci.
+
+hcl
+terraform {
+  backend "s3" {
+    bucket = "mon-bucket-terraform-dev"
+    key    = "dev/terraform.tfstate"
+    region = "us-east-1"
+    endpoint = "http://localhost:4566"
+    access_key = "test"
+    secret_key = "test"
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    s3_use_path_style           = true
+  }
+}
+Capture du backend S3 :
+https://cv-onepage/screenshots/a6-127-terraform-backend.png
+
+129-130. Checkov / Trivy IaC
+Le pipeline peut être configuré pour analyser le code Terraform avec Checkov ou Trivy IaC. Une mauvaise configuration (bucket public, chiffrement désactivé) serait détectée et bloquerait le pipeline.
+
+Capture du pipeline échoué :
+https://cv-onepage/screenshots/a6-130-terraform-security.png
+
+### 131. Comparaison Terraform et OpenTofu
+
+| Critère | Terraform | OpenTofu |
+|---|---|---|
+| **Licence** | BSL (Business Source License) | Open Source (MPL 2.0) |
+| **Maintenance** | HashiCorp | Linux Foundation |
+| **Compatibilité** | Standard | Compatible avec Terraform |
+| **Communauté** | Très large | En croissance |
+
+### 132. Terragrunt
+
+Terragrunt est un wrapper autour de Terraform qui permet de factoriser les configurations (DEV/STAGING/PROD) en évitant la duplication de code (DRY). Il gère aussi les dépendances entre modules et le backend distant de manière centralisée.
+
+### 133. Comparaison Terraform, OpenTofu et Pulumi
+
+| Critère | Terraform | OpenTofu | Pulumi |
+|---|---|---|---|
+| **Langage** | HCL | HCL | TypeScript, Python, Go, etc. |
+| **Licence** | BSL | MPL 2.0 | Apache 2.0 |
+| **Écosystème** | Très large | Compatible Terraform | En croissance |
+
+### 134. Terraform + Ansible
+
+Terraform crée l'infrastructure (VM, réseau) puis Ansible configure le serveur (Docker, K3s).
+
+**Schéma :** Terraform → création infrastructure → Ansible → configuration serveur → Docker / K3s
+
+### 135. Reconstruction complète
+
+Commandes utilisées :
+```bash
+terraform destroy -auto-approve
+terraform apply -auto-approve
+ansible-playbook -i ansible/inventory ansible/site.yml
