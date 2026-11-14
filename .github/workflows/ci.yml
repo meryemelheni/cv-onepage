@@ -12,6 +12,19 @@ permissions:
 jobs:
   test-and-scan:
     runs-on: ubuntu-latest
+    
+    # Ajout de Floci comme service container
+    services:
+      floci:
+        image: floci/floci
+        ports:
+          - 4566:4566
+        options: >-
+          --health-cmd "curl -f http://localhost:4566/_floci/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,6 +33,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      # Création de la file SQS dans Floci pour les tests
+      - name: Create SQS queue in Floci
+        run: |
+          curl -X POST "http://localhost:4566/000000000000/ma-file" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "Action=CreateQueue&QueueName=ma-file&Version=2012-11-05"
 
       - name: Install Frontend dependencies
         run: |
@@ -40,11 +60,6 @@ jobs:
         run: |
           cd cv-onepage/api
           npm test
-
-      #- name: Scan secrets with Gitleaks
-       # uses: gitleaks/gitleaks-action@v2
-       # env:
-        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: SAST with Semgrep
         uses: semgrep/semgrep-action@v1
