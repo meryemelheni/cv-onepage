@@ -1550,10 +1550,12 @@ Terraform crée l'infrastructure (VM, réseau) puis Ansible configure le serveur
 ### 135. Reconstruction complète
 
 Commandes utilisées :
+
 ```bash
 terraform destroy -auto-approve
 terraform apply -auto-approve
 ansible-playbook -i ansible/inventory ansible/site.yml
+```
 
 # Activité 7 : Kubernetes
 
@@ -1567,17 +1569,26 @@ K3s a été installé sur la VM Ubuntu.
 curl -sfL https://get.k3s.io | sh -
 sudo kubectl get nodes
 sudo kubectl get pods -A
-Capture du cluster K3s :
-https://cv-onepage-act4/screenshots/a7-137-k3s-nodes.png
+```
 
-138. Namespace dédié au DevSecOps Portfolio
-bash
+*Capture du cluster K3s :*
+
+![K3s nodes](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-137-k3s-nodes.png?raw=true)
+
+### 138. Namespace dédié au DevSecOps Portfolio
+
+```bash
 sudo kubectl create namespace portfolio
 sudo kubectl get namespaces
-Capture du namespace :
-https://cv-onepage-act4/screenshots/a7-138-namespace.png
+```
 
-139. Deployment du frontend Next.js
+*Capture du namespace :*
+
+![Namespace](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-138-namespace.png?raw=true)
+
+### 139. Deployment du frontend Next.js
+
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1609,11 +1620,15 @@ spec:
       volumes:
       - name: next-cache
         emptyDir: {}
+```
 
-Capture des pods :
-https://cv-onepage-act4/screenshots/a7-139-frontend-deployment.png
+*Capture des pods :*
 
-140. Deployment de l'API Express
+![Frontend deployment](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-139-frontend-deployment.png?raw=true)
+
+### 140. Deployment de l'API Express
+
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1634,10 +1649,15 @@ spec:
         image: maryemelheni/contact-api:latest
         ports:
         - containerPort: 3001
-Capture des pods :
-https://cv-onepage-act4/screenshots/a7-140-api-deployment.png
+```
 
-141-142. Services frontend et API
+*Capture des pods :*
+
+![API deployment](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-140-api-deployment.png?raw=true)
+
+### 141-142. Services frontend et API
+
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -1663,44 +1683,56 @@ spec:
   - port: 3001
     targetPort: 3001
   type: ClusterIP
-Capture des services :
-https://cv-onepage-act4/screenshots/a7-142-services.png
+```
 
-143. Communication frontend / API via le Service Kubernetes
-Le frontend utilise API_URL=http://api:3001 pour communiquer avec l'API via le réseau Kubernetes.
+*Capture des services :*
 
-Capture du portfolio avec les données de l'API :
-https://cv-onepage-act4/screenshots/a7-143-frontend-api.png
+![Services](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-142-services.png?raw=true)
 
-27. Kubernetes avec Ansible
-144. Rôle Ansible pour installer K3s
-Un rôle Ansible k3s a été créé pour installer automatiquement K3s sur une VM.
+### 143. Communication frontend / API via le Service Kubernetes
+
+Le frontend utilise `API_URL=http://api:3001` pour communiquer avec l'API via le réseau Kubernetes.
+
+*Capture du portfolio avec les données de l'API :*
+
+![Frontend API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-143-frontend-api.png?raw=true)
+
+## 27. Kubernetes avec Ansible
+
+### 144. Rôle Ansible pour installer K3s
+
+Un rôle Ansible `k3s` a été créé pour installer automatiquement K3s sur une VM.
 
 Structure du rôle :
 
-tasks/main.yml : installation de K3s
+- `tasks/main.yml` : installation de K3s
+- `handlers/main.yml` : redémarrage du service
+- `defaults/main.yml` : variables
 
-handlers/main.yml : redémarrage du service
+*Capture :*
 
-defaults/main.yml : variables
+![Ansible K3s](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-144-ansible-k3s.png?raw=true)
 
-Capture :
-https://cv-onepage-act4/screenshots/a7-144-ansible-k3s.png
+### 145. Automatisation Vagrant + Ansible
 
-145. Automatisation Vagrant + Ansible
 Le schéma d'automatisation : Ubuntu > SSH > Docker > K3s.
 
-Capture :
-https://cv-onepage-act4/screenshots/a7-145-vagrant-ansible-k3s.png
+*Capture :*
 
-146. Destruction et recréation du cluster
-bash
+![Vagrant Ansible K3s](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-145-vagrant-ansible-k3s.png?raw=true)
+
+### 146. Destruction et recréation du cluster
+
+```bash
 vagrant destroy -f
 vagrant up
+```
 
-28. Kubernetes — configuration de l'application
-147. ConfigMap
-yaml
+## 28. Kubernetes : configuration de l'application
+
+### 147. ConfigMap
+
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -1709,20 +1741,29 @@ metadata:
 data:
   API_URL: "http://api:3001"
   NEXT_TELEMETRY_DISABLED: "1"
-  Capture :
-https://cv-onepage-act4/screenshots/a7-147-configmap.png
+```
 
-148. Secret Kubernetes
-bash
+*Capture :*
+
+![ConfigMap](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-147-configmap.png?raw=true)
+
+### 148. Secret Kubernetes
+
+```bash
 sudo kubectl create secret generic portfolio-secret -n portfolio --from-literal=DB_PASSWORD=garderie_password
-Capture :
-https://cv-onepage-act4/screenshots/a7-148-secret.png
+```
 
-149. Modification des Deployments
-Les Deployments utilisent envFrom pour charger le ConfigMap et le Secret.
+*Capture :*
 
-150. PostgreSQL avec PersistentVolumeClaim
-yaml
+![Secret](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-148-secret.png?raw=true)
+
+### 149. Modification des Deployments
+
+Les Deployments utilisent `envFrom` pour charger le ConfigMap et le Secret.
+
+### 150. PostgreSQL avec PersistentVolumeClaim
+
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -1734,10 +1775,15 @@ spec:
   resources:
     requests:
       storage: 1Gi
-Capture :
-https://cv-onepage-act4/screenshots/a7-150-pvc.png
+```
 
-151-152. Ingress
+*Capture :*
+
+![PVC](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-150-pvc.png?raw=true)
+
+### 151-152. Ingress
+
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -1762,46 +1808,60 @@ spec:
             name: api
             port:
               number: 3001
-Capture :
-https://cv-onepage-act4/screenshots/a7-152-ingress.png
+```
 
-29. HTTPS et certificats
-153-155. cert-manager et certificat TLS
+*Capture :*
+
+![Ingress](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-152-ingress.png?raw=true)
+
+## 29. HTTPS et certificats
+
+### 153-155. cert-manager et certificat TLS
+
 cert-manager a été installé pour gérer les certificats TLS.
 
-Capture :
-https://cv-onepage-act4/screenshots/a7-155-certificate.png
+*Capture :*
 
-30. Santé et disponibilité de l'application
+![Certificate](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-155-certificate.png?raw=true)
 
-156-158. Readiness et Liveness Probes
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: 3001
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3001
-          initialDelaySeconds: 15
-          periodSeconds: 20
+## 30. Santé et disponibilité de l'application
 
-Capture :
-https://cv-onepage-act4/screenshots/a7-158-probes.png
+### 156-158. Readiness et Liveness Probes
 
-159. Ressources requests et limits
-yaml
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
+```yaml
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3001
+  initialDelaySeconds: 5
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3001
+  initialDelaySeconds: 15
+  periodSeconds: 20
+```
 
-160. HorizontalPodAutoscaler
+*Capture :*
+
+![Probes](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-158-probes.png?raw=true)
+
+### 159. Ressources requests et limits
+
+```yaml
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "500m"
+```
+
+### 160. HorizontalPodAutoscaler
+
+```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -1821,12 +1881,17 @@ spec:
       target:
         type: Utilization
         averageUtilization: 70
-Capture :
-https://cv-onepage-act4/screenshots/a7-160-hpa.png
+```
 
-31. Kubernetes Security et RBAC
+*Capture :*
 
-161-163. ServiceAccount, Role et RoleBinding
+![HPA](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-160-hpa.png?raw=true)
+
+## 31. Kubernetes Security et RBAC
+
+### 161-163. ServiceAccount, Role et RoleBinding
+
+```yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -1856,31 +1921,45 @@ roleRef:
   kind: Role
   name: portfolio-role
   apiGroup: rbac.authorization.k8s.io
+```
 
-  164. Test des permissions
-bash
+### 164. Test des permissions
+
+```bash
 sudo kubectl auth can-i list pods --as=system:serviceaccount:portfolio:portfolio-sa -n portfolio
-Capture :
-https://cv-onepage-act4/screenshots/a7-164-rbac.png
+```
 
-165. Conteneurs sans privilèges
-yaml
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1000
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-166. Pod Security Standards
-bash
+*Capture :*
+
+![RBAC](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-164-rbac.png?raw=true)
+
+### 165. Conteneurs sans privilèges
+
+```yaml
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+```
+
+### 166. Pod Security Standards
+
+```bash
 sudo kubectl label namespace portfolio pod-security.kubernetes.io/enforce=restricted
-Capture :
-https://cv-onepage-act4/screenshots/a7-166-pod-security.png
+```
 
-32. Network Security
+*Capture :*
 
-167-169. NetworkPolicy
+![Pod Security](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-166-pod-security.png?raw=true)
+
+## 32. Network Security
+
+### 167-169. NetworkPolicy
+
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -1905,69 +1984,115 @@ spec:
     - podSelector:
         matchLabels:
           app: frontend
-Capture :
-https://cv-onepage-act4/screenshots/a7-169-networkpolicy.png
+```
 
-170. Cilium et Hubble
+*Capture :*
+
+![NetworkPolicy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-169-networkpolicy.png?raw=true)
+
+### 170. Cilium et Hubble
+
 Cilium a été installé pour l'observabilité réseau eBPF avec Hubble.
-Capture :
-https://cv-onepage-act4/screenshots/a7-170-cilium.png
 
-33. Policy as Code
+*Capture de l'installation Cilium :*
 
-171-176. Kyverno
+![Cilium](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-170-cilium.png?raw=true)
+
+*Capture de Hubble UI :*
+
+![Hubble](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-170-hubble.png?raw=true)
+
+## 33. Policy as Code
+
+### 171-176. Kyverno
+
 Kyverno a été installé pour appliquer des policies Kubernetes.
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
-metadata:
-  name: disallow-latest-tag
-spec:
-  validationFailureAction: Enforce
-  rules:
-  - name: require-image-tag
-    match:
-      resources:
-        kinds:
-        - Pod
-    validate:
-      message: "L'utilisation du tag 'latest' est interdite."
-      pattern:
-        spec:
-          containers:
-          - image: "!*:latest"
-Capture du refus :
-https://cv-onepage-act4/screenshots/a7-176-kyverno.png
 
-177. OPA Gatekeeper
-Critère	Kyverno	OPA Gatekeeper
-Langage	YAML (natif K8s)	Rego
-Courbe d'apprentissage	Faible	Moyenne
-Flexibilité	Bonne	Très bonne
+*Capture de l'installation Kyverno :*
 
-34. Gestion avancée des secrets
+![Kyverno](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-171-kyverno.png?raw=true)
 
-178-184. Vault, External Secrets et Sealed Secrets
-Solution	Avantages	Inconvénients
-Secret Kubernetes	Simple, natif	Non chiffré, stocké en clair dans etcd
-Vault + External Secrets	Chiffré, rotation automatique	Complexe à installer
-Sealed Secrets	Chiffré, versionnable dans Git	Nécessite un contrôleur
-Capture :
-https://cv-onepage-act4/screenshots/a7-184-secrets.png
+*Capture de la policy disallow-latest-tag :*
 
-35. Sécurité Kubernetes continue
+![Kyverno Policy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-172-kyverno-policy.png?raw=true)
 
-185-186. Trivy Operator
-bash
-sudo kubectl get vulnerabilityreports -A
-Capture :
-https://cv-onepage-act4/screenshots/a7-186-trivy.png
+*Capture du refus d'un pod avec le tag latest :*
 
-187. Kubescape
-bash
+![Kyverno Refus](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-172-kyverno-refus.png?raw=true)
+
+*Capture des 4 policies Kyverno :*
+
+![Kyverno Policies](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-175-kyverno-policies.png?raw=true)
+
+*Capture du refus d'un pod non conforme :*
+
+![Kyverno Refus Non Conforme](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-176-kyverno-refus.png?raw=true)
+
+### 177. OPA Gatekeeper
+
+| Critère | Kyverno | OPA Gatekeeper |
+|---|---|---|
+| **Langage** | YAML (natif K8s) | Rego |
+| **Courbe d'apprentissage** | Faible | Moyenne |
+| **Flexibilité** | Bonne | Très bonne |
+| **Intégration K8s** | Native | Via CRDs |
+| **Cas d'usage** | Policies simples et moyennes | Policies complexes |
+
+**Conclusion :** Kyverno est plus simple à prendre en main car il utilise du YAML natif Kubernetes. OPA Gatekeeper est plus flexible (langage Rego) mais nécessite une courbe d'apprentissage plus importante.
+
+## 34. Gestion avancée des secrets
+
+### 178-184. Vault, External Secrets et Sealed Secrets
+
+| Solution | Avantages | Inconvénients |
+|---|---|---|
+| **Secret Kubernetes** | Simple, natif | Non chiffré, stocké en clair dans etcd |
+| **Vault + External Secrets** | Chiffré, rotation automatique | Complexe à installer |
+| **Sealed Secrets** | Chiffré, versionnable dans Git | Nécessite un contrôleur |
+
+**Sealed Secrets (installé)** : le secret `mon-secret` a été chiffré avec `kubeseal` et appliqué au cluster. Le contrôleur Sealed Secrets l'a automatiquement déchiffré en secret Kubernetes standard.
+
+*Capture :*
+
+![Sealed Secrets](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-183-sealed-secrets.png?raw=true)
+
+## 35. Sécurité Kubernetes continue
+
+### 185-186. Trivy Operator
+
+Trivy Operator a été installé pour scanner automatiquement les vulnérabilités des images Docker dans le cluster.
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/aquasecurity/trivy-operator/v0.20.0/deploy/static/trivy-operator.yaml
+kubectl get vulnerabilityreports -A
+```
+
+*Capture de l'installation de Trivy Operator :*
+
+![Trivy Operator](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-185-trivy-operator.png?raw=true)
+
+En raison de contraintes de bande passante sur la VM (téléchargement de la base de vulnérabilités Trivy trop lourd), les scans n'ont pas pu aboutir. Les concepts de scan de vulnérabilités dans Kubernetes ont néanmoins été étudiés.
+
+### 187. Kubescape
+
+Kubescape a été installé pour analyser la configuration du cluster Kubernetes.
+
+```bash
 kubescape scan framework nsa
+```
 
-188-189. Falco
+*Capture du scan Kubescape :*
+
+![Kubescape](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-187-kubescape.png?raw=true)
+
+### 188-189. Falco
+
 Falco a été installé pour détecter les comportements suspects à l'exécution.
 
-Capture de l'alerte :
-https://cv-onepage-act4/screenshots/a7-189-falco.png
+*Capture de l'installation Falco :*
+
+![Falco](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-188-falco.png?raw=true)
+
+*Capture de l'alerte Falco (shell dans un conteneur) :*
+
+![Falco Alerte](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-189-falco-alerte.png?raw=true)

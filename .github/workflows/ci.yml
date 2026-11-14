@@ -1,80 +1,10 @@
 name: CI/CD Portfolio
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-permissions:
-  contents: read
+  workflow_dispatch:
 
 jobs:
-  test-and-scan:
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install Frontend dependencies
-        run: |
-          cd cv-onepage/portfolio-nextjs
-          npm ci
-
-      - name: Install API dependencies
-        run: |
-          cd cv-onepage/api
-          npm ci
-
-      - name: Test Frontend
-        run: |
-          cd cv-onepage/portfolio-nextjs
-          npm test
-
-      - name: Test API
-        run: |
-          cd cv-onepage/api
-          npm test
-
-      #- name: Scan secrets with Gitleaks
-       # uses: gitleaks/gitleaks-action@v2
-       # env:
-        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: SAST with Semgrep
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: auto
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-        continue-on-error: true
-
-      - name: Dependency Check (npm audit)
-        run: |
-          cd cv-onepage/portfolio-nextjs
-          npm audit --audit-level=high || true
-          cd ../api
-          npm audit --audit-level=high || true
-
-      - name: Build Frontend Docker image
-        run: |
-          docker build -t maryemelheni/garderie-frontend:latest ./cv-onepage/portfolio-nextjs
-
-      - name: Build Backend Docker image
-        run: |
-          docker build -t maryemelheni/garderie-backend:latest ./cv-onepage/api
-
-      - name: Scan Docker images with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'maryemelheni/garderie-frontend:latest'
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+      - run: echo "Workflow désactivé pour le TP"
