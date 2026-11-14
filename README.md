@@ -1319,61 +1319,85 @@ Floci a été lancé en tant que conteneur Docker.
 ```bash
 docker run -d --name floci -p 4566:4566 floci/floci
 docker ps
+```
+
 ![a6-106-floci](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-106-floci.png?raw=true)
 
-107. Configuration AWS CLI
-bash
+### 107. Configuration AWS CLI
+
+```bash
 aws configure --profile floci
 # (Access Key: test, Secret Key: test, Region: us-east-1, Format: json)
 aws --profile floci --endpoint-url http://localhost:4566 sts get-caller-identity
+```
+
 ![a6-107-awscli](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-107-awscli.png?raw=true)
 
-108. Création d'un bucket S3
-bash
+### 108. Création d'un bucket S3
+
+```bash
 aws --profile floci --endpoint-url http://localhost:4566 s3 mb s3://mon-bucket-local
 aws --profile floci --endpoint-url http://localhost:4566 s3 ls
+```
+
 ![a6-108-s3-create](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-108-s3-create.png?raw=true)
 
-109. Upload et Download S3
-bash
+### 109. Upload et Download S3
+
+```bash
 echo "Hello Floci" > test.txt
 aws --profile floci --endpoint-url http://localhost:4566 s3 cp test.txt s3://mon-bucket-local/
 aws --profile floci --endpoint-url http://localhost:4566 s3 cp s3://mon-bucket-local/test.txt test-recup.txt
 cat test-recup.txt
+```
+
 ![a6-109-s3-upload](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-109-s3-upload.png?raw=true)
 
-110. File SQS
-bash
+### 110. File SQS
+
+```bash
 curl -X POST "http://localhost:4566/000000000000/ma-file" -H "Content-Type: application/x-www-form-urlencoded" -d "Action=CreateQueue&QueueName=ma-file&Version=2012-11-05"
 curl -X POST "http://localhost:4566/000000000000/ma-file" -H "Content-Type: application/x-www-form-urlencoded" -d "Action=SendMessage&MessageBody=Message+test&Version=2012-11-05"
 curl -X POST "http://localhost:4566/000000000000/ma-file" -H "Content-Type: application/x-www-form-urlencoded" -d "Action=ReceiveMessage&Version=2012-11-05"
+```
+
 ![a6-110-sqs](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-110-sqs.png?raw=true)
 
-111. Table DynamoDB
-bash
+### 111. Table DynamoDB
+
+```bash
 curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.0" -H "X-Amz-Target: DynamoDB_20120810.CreateTable" -d '{"TableName": "MaTable", "KeySchema": [{"AttributeName": "Id", "KeyType": "HASH"}], "AttributeDefinitions": [{"AttributeName": "Id", "AttributeType": "S"}], "BillingMode": "PAY_PER_REQUEST"}'
 curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.0" -H "X-Amz-Target: DynamoDB_20120810.PutItem" -d '{"TableName": "MaTable", "Item": {"Id": {"S": "1"}, "Nom": {"S": "Test"}}}'
 curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.0" -H "X-Amz-Target: DynamoDB_20120810.Scan" -d '{"TableName": "MaTable"}'
+```
+
 ![a6-111-dynamodb](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-111-dynamodb.png?raw=true)
 
-112. Fonction Lambda
-bash
+### 112. Fonction Lambda
+
+```bash
 echo 'exports.handler = async (event) => { return "Hello from Lambda"; };' > index.js
 zip function.zip index.js
 curl -X POST "http://localhost:4566/2015-03-31/functions" -H "Content-Type: application/json" -d '{"FunctionName": "MaLambda", "Runtime": "nodejs18.x", "Role": "arn:aws:iam::000000000000:role/lambda-role", "Handler": "index.handler", "Code": {"ZipFile": "'$(base64 -w0 function.zip)'"}}'
 curl -X POST "http://localhost:4566/2015-03-31/functions/MaLambda/invocations" -H "Content-Type: application/json" -d '{}'
+```
+
 ![a6-112-lambda](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-112-lambda.png?raw=true)
 
-113. Secrets Manager
-bash
+### 113. Secrets Manager
+
+```bash
 curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.1" -H "X-Amz-Target: secretsmanager.CreateSecret" -d '{"Name": "MonSecret", "SecretString": "motdepasse123"}'
 curl -X POST "http://localhost:4566" -H "Content-Type: application/x-amz-json-1.1" -H "X-Amz-Target: secretsmanager.GetSecretValue" -d '{"SecretId": "MonSecret"}'
+```
+
 ![a6-113-secrets](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-113-secrets.png?raw=true)
 
-114. Communication API Express avec Floci
-L'API Express a été modifiée pour envoyer un message dans SQS lors d'un appel sur la route /api/floci-contact.
+### 114. Communication API Express avec Floci
 
-javascript
+L'API Express a été modifiée pour envoyer un message dans SQS lors d'un appel sur la route `/api/floci-contact`.
+
+```javascript
 app.post("/api/floci-contact", async (req, res) => {
   try {
     const command = new SendMessageCommand({
@@ -1386,14 +1410,19 @@ app.post("/api/floci-contact", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+```
+
 Test :
 
-bash
+```bash
 curl -X POST http://localhost:3001/api/floci-contact -H "Content-Type: application/json" -d '{"nom": "Test", "email": "test@test.com"}'
+```
+
 ![a6-114-api-floci](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-114-api-floci.png?raw=true)
 
-115. Floci dans Docker Compose
-yaml
+### 115. Floci dans Docker Compose
+
+```yaml
   floci:
     image: floci/floci
     container_name: floci-compose
@@ -1401,12 +1430,15 @@ yaml
       - "4566:4566"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+```
+
 ![a6-115-docker-compose-floci](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-115-docker-compose-floci.png?raw=true)
 
-116. Floci dans GitHub Actions
-Le workflow ci.yml a été modifié pour ajouter Floci comme service container.
+### 116. Floci dans GitHub Actions
 
-yaml
+Le workflow `ci.yml` a été modifié pour ajouter Floci comme service container.
+
+```yaml
     services:
       floci:
         image: floci/floci
@@ -1417,15 +1449,19 @@ yaml
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-https://cv-onepage/screenshots/a6-116-github-actions-floci.png
+```
 
-117. Comparaison Floci, LocalStack et AWS réel
-Critère	Floci	LocalStack	Cloud AWS réel
-Licence	Open Source (gratuit)	Freemium (version Pro payante)	Payant à l'usage
-Services	S3, SQS, DynamoDB, Lambda, Secrets Manager	Très large (S3, SQS, Lambda, RDS, etc.)	Tous les services AWS
-Fidélité	Bonne pour les tests de base	Très bonne (proche du réel)	Parfaite
-Coût	Gratuit	Gratuit en Community, payant en Pro	Payant
-Usage en CI	Léger, rapide, parfait pour les tests	Plus lourd, mais complet	Déconseillé (coût)
+![a6-116-github-actions-floci](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-116-github-actions-floci.png?raw=true)
+
+### 117. Comparaison Floci, LocalStack et AWS réel
+
+| Critère | Floci | LocalStack | Cloud AWS réel |
+|---|---|---|---|
+| **Licence** | Open Source (gratuit) | Freemium (version Pro payante) | Payant à l'usage |
+| **Services** | S3, SQS, DynamoDB, Lambda, Secrets Manager | Très large (S3, SQS, Lambda, RDS, etc.) | Tous les services AWS |
+| **Fidélité** | Bonne pour les tests de base | Très bonne (proche du réel) | Parfaite |
+| **Coût** | Gratuit | Gratuit en Community, payant en Pro | Payant |
+| **Usage en CI** | Léger, rapide, parfait pour les tests | Plus lourd, mais complet | Déconseillé (coût) |
 
 ## 23. Introduction à Terraform
 
@@ -1433,64 +1469,93 @@ Usage en CI	Léger, rapide, parfait pour les tests	Plus lourd, mais complet	Déc
 
 ```bash
 terraform version
-Capture de la version de Terraform :
+```
+
+*Capture de la version de Terraform :*
+
 ![a6-118-terraform-version](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-118-terraform-version.png?raw=true)
 
-119-120. Premier projet Terraform
-Les fichiers providers.tf, main.tf, variables.tf et outputs.tf ont été créés dans le dossier terraform/.
+### 119-120. Premier projet Terraform
+
+Les fichiers `providers.tf`, `main.tf`, `variables.tf` et `outputs.tf` ont été créés dans le dossier `terraform/`.
 
 Commandes exécutées :
 
-bash
+```bash
 terraform init
 terraform fmt
 terraform validate
 terraform plan
-Capture du plan Terraform :
+```
+
+*Capture du plan Terraform :*
+
 ![a6-120-terraform-plan](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-120-terraform-plan.png?raw=true)
 
-121. Création des ressources dans Floci
-bash
+### 121. Création des ressources dans Floci
+
+```bash
 terraform apply -auto-approve
-Capture de l'application Terraform :
+```
+
+*Capture de l'application Terraform :*
+
 ![a6-121-terraform-apply](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-121-terraform-apply.png?raw=true)
 
-122. Vérification avec AWS CLI
-bash
+### 122. Vérification avec AWS CLI
+
+```bash
 aws --profile floci --endpoint-url http://localhost:4566 s3 ls
 aws --profile floci --endpoint-url http://localhost:4566 sqs list-queues
 aws --profile floci --endpoint-url http://localhost:4566 dynamodb list-tables
-Capture de la vérification :
+```
+
+*Capture de la vérification :*
+
 ![a6-122-terraform-verify](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-122-terraform-verify.png?raw=true)
 
-123. Destruction des ressources
-bash
+### 123. Destruction des ressources
+
+```bash
 terraform destroy -auto-approve
-Capture de la destruction :
+```
+
+*Capture de la destruction :*
+
 ![a6-123-terraform-destroy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-123-terraform-destroy.png?raw=true)
 
-24. Terraform avancé
-124. Modules réutilisables
-La configuration a été transformée en module réutilisable dans modules/storage/, utilisé pour deux environnements (dev et prod).
+## 24. Terraform avancé
 
-Capture des modules :
+### 124. Modules réutilisables
+
+La configuration a été transformée en module réutilisable dans `modules/storage/`, utilisé pour deux environnements (dev et prod).
+
+*Capture des modules :*
+
 ![a6-124-terraform-modules](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-124-terraform-modules.png?raw=true)
-125. Configurations séparées (dev, staging, prod)
-Les dossiers environments/dev, environments/staging et environments/prod ont été créés.
 
-bash
+### 125. Configurations séparées (dev, staging, prod)
+
+Les dossiers `environments/dev`, `environments/staging` et `environments/prod` ont été créés.
+
+```bash
 cd environments/dev
 terraform init && terraform apply -auto-approve
-Capture de l'environnement dev :
+```
+
+*Capture de l'environnement dev :*
+
 ![a6-125-terraform-env-dev](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-125-terraform-env-dev.png?raw=true)
 
-126. Rôle du fichier Terraform State
-Le fichier terraform.tfstate stocke l'état actuel de l'infrastructure. Il permet à Terraform de savoir quelles ressources existent déjà, d'éviter les doublons, et de calculer les différences lors d'un plan ou d'un apply. Il ne faut jamais le versionner sur Git car il peut contenir des informations sensibles.
+### 126. Rôle du fichier Terraform State
 
-127-128. Backend distant S3 et verrouillage du state
-Le backend S3 a été configuré dans environments/dev/providers.tf pour stocker le state dans Floci.
+Le fichier `terraform.tfstate` stocke l'état actuel de l'infrastructure. Il permet à Terraform de savoir quelles ressources existent déjà, d'éviter les doublons, et de calculer les différences lors d'un `plan` ou d'un `apply`. Il ne faut jamais le versionner sur Git car il peut contenir des informations sensibles.
 
-hcl
+### 127-128. Backend distant S3 et verrouillage du state
+
+Le backend S3 a été configuré dans `environments/dev/providers.tf` pour stocker le state dans Floci.
+
+```hcl
 terraform {
   backend "s3" {
     bucket = "mon-bucket-terraform-dev"
@@ -1505,19 +1570,26 @@ terraform {
     s3_use_path_style           = true
   }
 }
-Capture du backend S3 :
+```
+
+*Capture du backend S3 :*
+
 ![a6-127-terraform-backend](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-127-terraform-backend.png?raw=true)
 
-Point 128 (Verrouillage du state) :
+*Point 128 (verrouillage du state) :*
+
 ![a6-128-terraform-lock](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-128-terraform-lock.png?raw=true)
 
-129-Checkov 
+### 129. Checkov
+
 ![a6-129-checkov](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-129-checkov.png?raw=true)
 
-130.Trivy IaC
+### 130. Trivy IaC
+
 Le pipeline peut être configuré pour analyser le code Terraform avec Checkov ou Trivy IaC. Une mauvaise configuration (bucket public, chiffrement désactivé) serait détectée et bloquerait le pipeline.
 
-Capture du pipeline échoué :
+*Capture du pipeline échoué :*
+
 ![a6-130-checkov-error](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-130-checkov-error.png?raw=true)
 
 ### 131. Comparaison Terraform et OpenTofu
