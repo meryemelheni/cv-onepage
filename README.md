@@ -1573,7 +1573,7 @@ sudo kubectl get pods -A
 
 *Capture du cluster K3s :*
 
-![K3s nodes](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-137-k3s-nodes.png?raw=true)
+![K3s nodes](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-137-k3s-nodes.png?raw=true)
 
 ### 138. Namespace dédié au DevSecOps Portfolio
 
@@ -1584,7 +1584,7 @@ sudo kubectl get namespaces
 
 *Capture du namespace :*
 
-![Namespace](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-138-namespace.png?raw=true)
+![Namespace](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-138-namespace.png?raw=true)
 
 ### 139. Deployment du frontend Next.js
 
@@ -1624,7 +1624,7 @@ spec:
 
 *Capture des pods :*
 
-![Frontend deployment](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-139-frontend-deployment.png?raw=true)
+![Frontend deployment](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-139-frontend-deployment.png?raw=true)
 
 ### 140. Deployment de l'API Express
 
@@ -1653,7 +1653,7 @@ spec:
 
 *Capture des pods :*
 
-![API deployment](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-140-api-deployment.png?raw=true)
+![API deployment](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-140-api-deployment.png?raw=true)
 
 ### 141-142. Services frontend et API
 
@@ -1687,7 +1687,7 @@ spec:
 
 *Capture des services :*
 
-![Services](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-142-services.png?raw=true)
+![Services](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-142-services.png?raw=true)
 
 ### 143. Communication frontend / API via le Service Kubernetes
 
@@ -1695,7 +1695,7 @@ Le frontend utilise `API_URL=http://api:3001` pour communiquer avec l'API via le
 
 *Capture du portfolio avec les données de l'API :*
 
-![Frontend API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-143-frontend-api.png?raw=true)
+![Frontend API](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-143-frontend-api.png?raw=true)
 
 ## 27. Kubernetes avec Ansible
 
@@ -1711,7 +1711,7 @@ Structure du rôle :
 
 *Capture :*
 
-![Ansible K3s](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-144-ansible-k3s.png?raw=true)
+![Ansible K3s](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-144-ansible-k3s.png?raw=true)
 
 ### 145. Automatisation Vagrant + Ansible
 
@@ -1719,7 +1719,7 @@ Le schéma d'automatisation : Ubuntu > SSH > Docker > K3s.
 
 *Capture :*
 
-![Vagrant Ansible K3s](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-145-vagrant-ansible-k3s.png?raw=true)
+![Vagrant Ansible K3s](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-145-vagrant-ansible-k3s.png?raw=true)
 
 ### 146. Destruction et recréation du cluster
 
@@ -1745,7 +1745,7 @@ data:
 
 *Capture :*
 
-![ConfigMap](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-147-configmap.png?raw=true)
+![ConfigMap](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-147-configmap.png?raw=true)
 
 ### 148. Secret Kubernetes
 
@@ -1755,7 +1755,7 @@ sudo kubectl create secret generic portfolio-secret -n portfolio --from-literal=
 
 *Capture :*
 
-![Secret](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-148-secret.png?raw=true)
+![Secret](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-148-secret.png?raw=true)
 
 ### 149. Modification des Deployments
 
@@ -1779,7 +1779,7 @@ spec:
 
 *Capture :*
 
-![PVC](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-150-pvc.png?raw=true)
+![PVC](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-150-pvc.png?raw=true)
 
 ### 151-152. Ingress
 
@@ -1812,7 +1812,7 @@ spec:
 
 *Capture :*
 
-![Ingress](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-152-ingress.png?raw=true)
+![Ingress](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-152-ingress.png?raw=true)
 
 ## 29. HTTPS et certificats
 
@@ -1822,7 +1822,7 @@ cert-manager a été installé pour gérer les certificats TLS.
 
 *Capture :*
 
-![Certificate](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-155-certificate.png?raw=true)
+![Certificate](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-155-certificate.png?raw=true)
 
 ## 30. Santé et disponibilité de l'application
 
@@ -1845,7 +1845,7 @@ livenessProbe:
 
 *Capture :*
 
-![Probes](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-158-probes.png?raw=true)
+![Probes](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-158-probes.png?raw=true)
 
 ### 159. Ressources requests et limits
 
@@ -1885,7 +1885,7 @@ spec:
 
 *Capture :*
 
-![HPA](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-160-hpa.png?raw=true)
+![HPA](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-160-hpa.png?raw=true)
 
 ## 31. Kubernetes Security et RBAC
 
@@ -1931,7 +1931,7 @@ sudo kubectl auth can-i list pods --as=system:serviceaccount:portfolio:portfolio
 
 *Capture :*
 
-![RBAC](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-164-rbac.png?raw=true)
+![RBAC](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-164-rbac.png?raw=true)
 
 ### 165. Conteneurs sans privilèges
 
@@ -1953,7 +1953,7 @@ sudo kubectl label namespace portfolio pod-security.kubernetes.io/enforce=restri
 
 *Capture :*
 
-![Pod Security](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-166-pod-security.png?raw=true)
+![Pod Security](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-166-pod-security.png?raw=true)
 
 ## 32. Network Security
 
@@ -1988,7 +1988,7 @@ spec:
 
 *Capture :*
 
-![NetworkPolicy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-169-networkpolicy.png?raw=true)
+![NetworkPolicy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-169-networkpolicy.png?raw=true)
 
 ### 170. Cilium et Hubble
 
@@ -1996,11 +1996,11 @@ Cilium a été installé pour l'observabilité réseau eBPF avec Hubble.
 
 *Capture de l'installation Cilium :*
 
-![Cilium](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-170-cilium.png?raw=true)
+![Cilium](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-170-cilium.png?raw=true)
 
 *Capture de Hubble UI :*
 
-![Hubble](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-170-hubble.png?raw=true)
+![Hubble](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-170-hubble.png?raw=true)
 
 ## 33. Policy as Code
 
@@ -2010,23 +2010,23 @@ Kyverno a été installé pour appliquer des policies Kubernetes.
 
 *Capture de l'installation Kyverno :*
 
-![Kyverno](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-171-kyverno.png?raw=true)
+![Kyverno](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-171-kyverno.png?raw=true)
 
 *Capture de la policy disallow-latest-tag :*
 
-![Kyverno Policy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-172-kyverno-policy.png?raw=true)
+![Kyverno Policy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-172-kyverno-policy.png?raw=true)
 
 *Capture du refus d'un pod avec le tag latest :*
 
-![Kyverno Refus](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-172-kyverno-refus.png?raw=true)
+![Kyverno Refus](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-172-kyverno-refus.png?raw=true)
 
 *Capture des 4 policies Kyverno :*
 
-![Kyverno Policies](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-175-kyverno-policies.png?raw=true)
+![Kyverno Policies](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-175-kyverno-policies.png?raw=true)
 
 *Capture du refus d'un pod non conforme :*
 
-![Kyverno Refus Non Conforme](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-176-kyverno-refus.png?raw=true)
+![Kyverno Refus Non Conforme](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-176-kyverno-refus.png?raw=true)
 
 ### 177. OPA Gatekeeper
 
@@ -2054,7 +2054,7 @@ Kyverno a été installé pour appliquer des policies Kubernetes.
 
 *Capture :*
 
-![Sealed Secrets](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-183-sealed-secrets.png?raw=true)
+![Sealed Secrets](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-183-sealed-secrets.png?raw=true)
 
 ## 35. Sécurité Kubernetes continue
 
@@ -2069,7 +2069,7 @@ kubectl get vulnerabilityreports -A
 
 *Capture de l'installation de Trivy Operator :*
 
-![Trivy Operator](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-185-trivy-operator.png?raw=true)
+![Trivy Operator](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-185-trivy-operator.png?raw=true)
 
 En raison de contraintes de bande passante sur la VM (téléchargement de la base de vulnérabilités Trivy trop lourd), les scans n'ont pas pu aboutir. Les concepts de scan de vulnérabilités dans Kubernetes ont néanmoins été étudiés.
 
@@ -2083,7 +2083,7 @@ kubescape scan framework nsa
 
 *Capture du scan Kubescape :*
 
-![Kubescape](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-187-kubescape.png?raw=true)
+![Kubescape](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-187-kubescape.png?raw=true)
 
 ### 188-189. Falco
 
@@ -2091,8 +2091,8 @@ Falco a été installé pour détecter les comportements suspects à l'exécutio
 
 *Capture de l'installation Falco :*
 
-![Falco](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-188-falco.png?raw=true)
+![Falco](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-188-falco.png?raw=true)
 
 *Capture de l'alerte Falco (shell dans un conteneur) :*
 
-![Falco Alerte](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage-act4/screenshots/a7-189-falco-alerte.png?raw=true)
+![Falco Alerte](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-189-falco-alerte.png?raw=true)
