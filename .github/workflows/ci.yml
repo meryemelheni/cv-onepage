@@ -1,34 +1,10 @@
 name: CI/CD Portfolio
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-permissions:
-  contents: read
+  workflow_dispatch:
 
 jobs:
-  test-and-scan:
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Test Frontend
-        run: |
-          cd cv-onepage/portfolio-nextjs
-          npm ci
-          npm test
-
-      - name: Test API
-        run: |
-          cd cv-onepage/api
-          npm ci
-          npm test
+      - run: echo "Workflow désactivé pour le TP"
