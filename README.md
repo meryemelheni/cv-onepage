@@ -1908,66 +1908,93 @@ spec:
 Capture :
 https://cv-onepage-act4/screenshots/a7-169-networkpolicy.png
 
-170. Cilium et Hubble
+### 170. Cilium et Hubble
+
 Cilium a été installé pour l'observabilité réseau eBPF avec Hubble.
-Capture :
-https://cv-onepage-act4/screenshots/a7-170-cilium.png
 
-33. Policy as Code
+*Capture de l'installation Cilium :*
+![Cilium](cv-onepage-act4/screenshots/a7-170-cilium.png)
 
-171-176. Kyverno
+*Capture de Hubble UI :*
+![Hubble](cv-onepage-act4/screenshots/a7-170-hubble.png)
+
+## 33. Policy as Code
+
+### 171-176. Kyverno
+
 Kyverno a été installé pour appliquer des policies Kubernetes.
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
-metadata:
-  name: disallow-latest-tag
-spec:
-  validationFailureAction: Enforce
-  rules:
-  - name: require-image-tag
-    match:
-      resources:
-        kinds:
-        - Pod
-    validate:
-      message: "L'utilisation du tag 'latest' est interdite."
-      pattern:
-        spec:
-          containers:
-          - image: "!*:latest"
-Capture du refus :
-https://cv-onepage-act4/screenshots/a7-176-kyverno.png
 
-177. OPA Gatekeeper
-Critère	Kyverno	OPA Gatekeeper
-Langage	YAML (natif K8s)	Rego
-Courbe d'apprentissage	Faible	Moyenne
-Flexibilité	Bonne	Très bonne
+*Capture de l'installation Kyverno :*
+![Kyverno](cv-onepage-act4/screenshots/a7-171-kyverno.png)
 
-34. Gestion avancée des secrets
+*Capture de la policy disallow-latest-tag :*
+![Kyverno Policy](cv-onepage-act4/screenshots/a7-172-kyverno-policy.png)
 
-178-184. Vault, External Secrets et Sealed Secrets
-Solution	Avantages	Inconvénients
-Secret Kubernetes	Simple, natif	Non chiffré, stocké en clair dans etcd
-Vault + External Secrets	Chiffré, rotation automatique	Complexe à installer
-Sealed Secrets	Chiffré, versionnable dans Git	Nécessite un contrôleur
-Capture :
-https://cv-onepage-act4/screenshots/a7-184-secrets.png
+*Capture du refus d'un pod avec le tag latest :*
+![Kyverno Refus](cv-onepage-act4/screenshots/a7-172-kyverno-refus.png)
 
-35. Sécurité Kubernetes continue
+*Capture des 4 policies Kyverno :*
+![Kyverno Policies](cv-onepage-act4/screenshots/a7-175-kyverno-policies.png)
 
-185-186. Trivy Operator
-bash
-sudo kubectl get vulnerabilityreports -A
-Capture :
-https://cv-onepage-act4/screenshots/a7-186-trivy.png
+*Capture du refus d'un pod non conforme :*
+![Kyverno Refus Non Conforme](cv-onepage-act4/screenshots/a7-176-kyverno-refus.png)
+
+### 177. OPA Gatekeeper
+
+| Critère | Kyverno | OPA Gatekeeper |
+|---|---|---|
+| **Langage** | YAML (natif K8s) | Rego |
+| **Courbe d'apprentissage** | Faible | Moyenne |
+| **Flexibilité** | Bonne | Très bonne |
+| **Intégration K8s** | Native | Via CRDs |
+| **Cas d'usage** | Policies simples et moyennes | Policies complexes |
+
+**Conclusion :** Kyverno est plus simple à prendre en main car il utilise du YAML natif Kubernetes. OPA Gatekeeper est plus flexible (langage Rego) mais nécessite une courbe d'apprentissage plus importante.
+
+## 34. Gestion avancée des secrets
+
+### 178-184. Vault, External Secrets et Sealed Secrets
+
+| Solution | Avantages | Inconvénients |
+|---|---|---|
+| **Secret Kubernetes** | Simple, natif | Non chiffré, stocké en clair dans etcd |
+| **Vault + External Secrets** | Chiffré, rotation automatique | Complexe à installer |
+| **Sealed Secrets** | Chiffré, versionnable dans Git | Nécessite un contrôleur |
+
+**Sealed Secrets (installé)** : Le secret `mon-secret` a été chiffré avec `kubeseal` et appliqué au cluster. Le contrôleur Sealed Secrets l'a automatiquement déchiffré en secret Kubernetes standard.
+
+*Capture :*
+![Sealed Secrets](cv-onepage-act4/screenshots/a7-183-sealed-secrets.png)
+
+## 35. Sécurité Kubernetes continue
+
+### 185-186. Trivy Operator
+
+Trivy Operator a été installé pour scanner automatiquement les vulnérabilités des images Docker dans le cluster.
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/aquasecurity/trivy-operator/v0.20.0/deploy/static/trivy-operator.yaml
+kubectl get vulnerabilityreports -A
+
+Capture de l'installation de Trivy Operator :
+https://cv-onepage-act4/screenshots/a7-185-trivy-operator.png
+
+En raison de contraintes de bande passante sur la VM (téléchargement de la base de vulnérabilités Trivy trop lourd), les scans n'ont pas pu aboutir. Les concepts de scan de vulnérabilités dans Kubernetes ont néanmoins été étudiés.
 
 187. Kubescape
+Kubescape a été installé pour analyser la configuration du cluster Kubernetes.
+
 bash
 kubescape scan framework nsa
+Capture du scan Kubescape :
+https://cv-onepage-act4/screenshots/a7-187-kubescape.png
+
 
 188-189. Falco
 Falco a été installé pour détecter les comportements suspects à l'exécution.
 
-Capture de l'alerte :
-https://cv-onepage-act4/screenshots/a7-189-falco.png
+Capture de l'installation Falco :
+https://cv-onepage-act4/screenshots/a7-188-falco.png
+
+Capture de l'alerte Falco (shell dans un conteneur) :
+https://cv-onepage-act4/screenshots/a7-189-falco-alerte.png
