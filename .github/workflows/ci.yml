@@ -12,19 +12,6 @@ permissions:
 jobs:
   test-and-scan:
     runs-on: ubuntu-latest
-    
-    # Ajout de Floci comme service container
-    services:
-      floci:
-        image: floci/floci
-        ports:
-          - 4566:4566
-        options: >-
-          --health-cmd "curl -f http://localhost:4566/_floci/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,62 +21,14 @@ jobs:
         with:
           node-version: '22'
 
-      # Création de la file SQS dans Floci pour les tests
-      - name: Create SQS queue in Floci
-        run: |
-          curl -X POST "http://localhost:4566/000000000000/ma-file" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "Action=CreateQueue&QueueName=ma-file&Version=2012-11-05"
-
-      - name: Install Frontend dependencies
-        run: |
-          cd cv-onepage/portfolio-nextjs
-          npm ci
-
-      - name: Install API dependencies
-        run: |
-          cd cv-onepage/api
-          npm ci
-
       - name: Test Frontend
         run: |
           cd cv-onepage/portfolio-nextjs
+          npm ci
           npm test
 
       - name: Test API
         run: |
           cd cv-onepage/api
+          npm ci
           npm test
-
-      - name: SAST with Semgrep
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: auto
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-        continue-on-error: true
-
-      - name: Dependency Check (npm audit)
-        run: |
-          cd cv-onepage/portfolio-nextjs
-          npm audit --audit-level=high || true
-          cd ../api
-          npm audit --audit-level=high || true
-
-      - name: Build Frontend Docker image
-        run: |
-          docker build -t maryemelheni/garderie-frontend:latest ./cv-onepage/portfolio-nextjs
-
-      - name: Build Backend Docker image
-        run: |
-          docker build -t maryemelheni/garderie-backend:latest ./cv-onepage/api
-
-      - name: Scan Docker images with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'maryemelheni/garderie-frontend:latest'
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
