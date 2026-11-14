@@ -1592,6 +1592,43 @@ Le pipeline peut être configuré pour analyser le code Terraform avec Checkov o
 
 ![a6-130-checkov-error](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a6-130-checkov-error.png?raw=true)
 
+### 131. Comparaison Terraform et OpenTofu
+
+| Critère | Terraform | OpenTofu |
+|---|---|---|
+| **Licence** | BSL (Business Source License) | Open Source (MPL 2.0) |
+| **Maintenance** | HashiCorp | Linux Foundation |
+| **Compatibilité** | Standard | Compatible avec Terraform |
+| **Communauté** | Très large | En croissance |
+
+### 132. Terragrunt
+
+Terragrunt est un wrapper autour de Terraform qui permet de factoriser les configurations (DEV/STAGING/PROD) en évitant la duplication de code (DRY). Il gère aussi les dépendances entre modules et le backend distant de manière centralisée.
+
+### 133. Comparaison Terraform, OpenTofu et Pulumi
+
+| Critère | Terraform | OpenTofu | Pulumi |
+|---|---|---|---|
+| **Langage** | HCL | HCL | TypeScript, Python, Go, etc. |
+| **Licence** | BSL | MPL 2.0 | Apache 2.0 |
+| **Écosystème** | Très large | Compatible Terraform | En croissance |
+
+### 134. Terraform + Ansible
+
+Terraform crée l'infrastructure (VM, réseau) puis Ansible configure le serveur (Docker, K3s).
+
+**Schéma :** Terraform → création infrastructure → Ansible → configuration serveur → Docker / K3s
+
+### 135. Reconstruction complète
+
+Commandes utilisées :
+
+```bash
+terraform destroy -auto-approve
+terraform apply -auto-approve
+ansible-playbook -i ansible/inventory ansible/site.yml
+```
+
 # Activité 7 : Kubernetes
 
 ## 26. Introduction à Kubernetes
