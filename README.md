@@ -1554,3 +1554,420 @@ Commandes utilisées :
 terraform destroy -auto-approve
 terraform apply -auto-approve
 ansible-playbook -i ansible/inventory ansible/site.yml
+
+# Activité 7 : Kubernetes
+
+## 26. Introduction à Kubernetes
+
+### 136-137. Installation de K3s et vérification du cluster
+
+K3s a été installé sur la VM Ubuntu.
+
+```bash
+curl -sfL https://get.k3s.io | sh -
+sudo kubectl get nodes
+sudo kubectl get pods -A
+Capture du cluster K3s :
+https://cv-onepage-act4/screenshots/a7-137-k3s-nodes.png
+
+138. Namespace dédié au DevSecOps Portfolio
+bash
+sudo kubectl create namespace portfolio
+sudo kubectl get namespaces
+Capture du namespace :
+https://cv-onepage-act4/screenshots/a7-138-namespace.png
+
+139. Deployment du frontend Next.js
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: portfolio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: maryemelheni/portfolio-nextjs:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: API_URL
+          value: "http://api:3001"
+        - name: NEXT_TELEMETRY_DISABLED
+          value: "1"
+        volumeMounts:
+        - name: next-cache
+          mountPath: /app/.next/cache
+      volumes:
+      - name: next-cache
+        emptyDir: {}
+
+Capture des pods :
+https://cv-onepage-act4/screenshots/a7-139-frontend-deployment.png
+
+140. Deployment de l'API Express
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: portfolio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: maryemelheni/contact-api:latest
+        ports:
+        - containerPort: 3001
+Capture des pods :
+https://cv-onepage-act4/screenshots/a7-140-api-deployment.png
+
+141-142. Services frontend et API
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: portfolio
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: portfolio
+spec:
+  selector:
+    app: api
+  ports:
+  - port: 3001
+    targetPort: 3001
+  type: ClusterIP
+Capture des services :
+https://cv-onepage-act4/screenshots/a7-142-services.png
+
+143. Communication frontend / API via le Service Kubernetes
+Le frontend utilise API_URL=http://api:3001 pour communiquer avec l'API via le réseau Kubernetes.
+
+Capture du portfolio avec les données de l'API :
+https://cv-onepage-act4/screenshots/a7-143-frontend-api.png
+
+27. Kubernetes avec Ansible
+144. Rôle Ansible pour installer K3s
+Un rôle Ansible k3s a été créé pour installer automatiquement K3s sur une VM.
+
+Structure du rôle :
+
+tasks/main.yml : installation de K3s
+
+handlers/main.yml : redémarrage du service
+
+defaults/main.yml : variables
+
+Capture :
+https://cv-onepage-act4/screenshots/a7-144-ansible-k3s.png
+
+145. Automatisation Vagrant + Ansible
+Le schéma d'automatisation : Ubuntu > SSH > Docker > K3s.
+
+Capture :
+https://cv-onepage-act4/screenshots/a7-145-vagrant-ansible-k3s.png
+
+146. Destruction et recréation du cluster
+bash
+vagrant destroy -f
+vagrant up
+
+28. Kubernetes — configuration de l'application
+147. ConfigMap
+yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portfolio-config
+  namespace: portfolio
+data:
+  API_URL: "http://api:3001"
+  NEXT_TELEMETRY_DISABLED: "1"
+  Capture :
+https://cv-onepage-act4/screenshots/a7-147-configmap.png
+
+148. Secret Kubernetes
+bash
+sudo kubectl create secret generic portfolio-secret -n portfolio --from-literal=DB_PASSWORD=garderie_password
+Capture :
+https://cv-onepage-act4/screenshots/a7-148-secret.png
+
+149. Modification des Deployments
+Les Deployments utilisent envFrom pour charger le ConfigMap et le Secret.
+
+150. PostgreSQL avec PersistentVolumeClaim
+yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: portfolio
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+Capture :
+https://cv-onepage-act4/screenshots/a7-150-pvc.png
+
+151-152. Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portfolio-ingress
+  namespace: portfolio
+spec:
+  rules:
+  - host: portfolio.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api
+            port:
+              number: 3001
+Capture :
+https://cv-onepage-act4/screenshots/a7-152-ingress.png
+
+29. HTTPS et certificats
+153-155. cert-manager et certificat TLS
+cert-manager a été installé pour gérer les certificats TLS.
+
+Capture :
+https://cv-onepage-act4/screenshots/a7-155-certificate.png
+
+30. Santé et disponibilité de l'application
+
+156-158. Readiness et Liveness Probes
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3001
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+Capture :
+https://cv-onepage-act4/screenshots/a7-158-probes.png
+
+159. Ressources requests et limits
+yaml
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+
+160. HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-hpa
+  namespace: portfolio
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+Capture :
+https://cv-onepage-act4/screenshots/a7-160-hpa.png
+
+31. Kubernetes Security et RBAC
+
+161-163. ServiceAccount, Role et RoleBinding
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: portfolio-sa
+  namespace: portfolio
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: portfolio-role
+  namespace: portfolio
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: portfolio-rolebinding
+  namespace: portfolio
+subjects:
+- kind: ServiceAccount
+  name: portfolio-sa
+  namespace: portfolio
+roleRef:
+  kind: Role
+  name: portfolio-role
+  apiGroup: rbac.authorization.k8s.io
+
+  164. Test des permissions
+bash
+sudo kubectl auth can-i list pods --as=system:serviceaccount:portfolio:portfolio-sa -n portfolio
+Capture :
+https://cv-onepage-act4/screenshots/a7-164-rbac.png
+
+165. Conteneurs sans privilèges
+yaml
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+166. Pod Security Standards
+bash
+sudo kubectl label namespace portfolio pod-security.kubernetes.io/enforce=restricted
+Capture :
+https://cv-onepage-act4/screenshots/a7-166-pod-security.png
+
+32. Network Security
+
+167-169. NetworkPolicy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: portfolio
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-api
+  namespace: portfolio
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+Capture :
+https://cv-onepage-act4/screenshots/a7-169-networkpolicy.png
+
+170. Cilium et Hubble
+Cilium a été installé pour l'observabilité réseau eBPF avec Hubble.
+Capture :
+https://cv-onepage-act4/screenshots/a7-170-cilium.png
+
+33. Policy as Code
+
+171-176. Kyverno
+Kyverno a été installé pour appliquer des policies Kubernetes.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+spec:
+  validationFailureAction: Enforce
+  rules:
+  - name: require-image-tag
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "L'utilisation du tag 'latest' est interdite."
+      pattern:
+        spec:
+          containers:
+          - image: "!*:latest"
+Capture du refus :
+https://cv-onepage-act4/screenshots/a7-176-kyverno.png
+
+177. OPA Gatekeeper
+Critère	Kyverno	OPA Gatekeeper
+Langage	YAML (natif K8s)	Rego
+Courbe d'apprentissage	Faible	Moyenne
+Flexibilité	Bonne	Très bonne
+
+34. Gestion avancée des secrets
+
+178-184. Vault, External Secrets et Sealed Secrets
+Solution	Avantages	Inconvénients
+Secret Kubernetes	Simple, natif	Non chiffré, stocké en clair dans etcd
+Vault + External Secrets	Chiffré, rotation automatique	Complexe à installer
+Sealed Secrets	Chiffré, versionnable dans Git	Nécessite un contrôleur
+Capture :
+https://cv-onepage-act4/screenshots/a7-184-secrets.png
+
+35. Sécurité Kubernetes continue
+
+185-186. Trivy Operator
+bash
+sudo kubectl get vulnerabilityreports -A
+Capture :
+https://cv-onepage-act4/screenshots/a7-186-trivy.png
+
+187. Kubescape
+bash
+kubescape scan framework nsa
+
+188-189. Falco
+Falco a été installé pour détecter les comportements suspects à l'exécution.
+
+Capture de l'alerte :
+https://cv-onepage-act4/screenshots/a7-189-falco.png
