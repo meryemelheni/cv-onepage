@@ -2168,3 +2168,124 @@ Falco a été installé pour détecter les comportements suspects à l'exécutio
 *Capture de l'alerte Falco (shell dans un conteneur) :*
 
 ![Falco Alerte](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a7-189-falco-alerte.png?raw=true)
+
+# Activité 8 : Helm, Kustomize et GitOps
+
+## 36. Helm
+
+### 190. Installation de Helm
+
+```bash
+helm version
+```
+
+*Capture :*
+
+![Helm version](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-190-helm-version.png?raw=true)
+
+### 191. Helm Chart du frontend et de l'API
+
+Les manifests Kubernetes du frontend et de l'API (Deployments, Services, Ingress, NetworkPolicy) ont été transformés en un Helm Chart situé dans le dossier `helm-chart/`. Les valeurs qui changent (images, tags, replicas, ressources, hôte de l'ingress) ont été remplacées par des variables `{{ .Values... }}`.
+
+Structure du chart :
+
+```
+helm-chart
+├── charts
+├── Chart.yaml
+├── templates
+│   ├── api-deployment.yaml
+│   ├── frontend-deployment.yaml
+│   ├── ingress.yaml
+│   ├── networkpolicy-ingress.yaml
+│   └── services.yaml
+└── values.yaml
+```
+
+Vérification de la qualité du chart :
+
+```bash
+helm lint helm-chart
+```
+
+*Capture du résultat de `helm lint` :*
+
+![Helm lint](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-191-helm-lint.png?raw=true)
+
+### 192. Fichier values.yaml
+
+```yaml
+frontend:
+  image: maryemelheni/portfolio-nextjs
+  tag: latest
+  replicas: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+
+api:
+  image: maryemelheni/contact-api
+  tag: latest
+  replicas: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+
+ingress:
+  enabled: true
+  host: portfolio.local
+```
+
+Le fichier contient : l'image et le tag du frontend, l'image et le tag de l'API, le nombre de replicas, l'ingress et les ressources.
+
+### 193. Déploiement avec `helm install`
+
+```bash
+helm install portfolio ./helm-chart -n portfolio
+kubectl get pods -n portfolio
+```
+
+*Capture :*
+
+![Helm install](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-193-pods-running.png?raw=true)
+
+### 194. Modification des replicas avec `helm upgrade`
+
+Le nombre de replicas a été modifié dans `values.yaml`, puis la release a été mise à jour :
+
+```bash
+helm upgrade portfolio ./helm-chart -n portfolio
+kubectl get pods -n portfolio
+```
+
+*Capture du résultat de `kubectl get pods` :*
+
+![Helm upgrade](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-194-get-pods.png?raw=true)
+
+### 195. Retour arrière avec `helm rollback`
+
+```bash
+helm rollback portfolio 1 -n portfolio
+helm history portfolio -n portfolio
+kubectl get pods -n portfolio
+```
+
+*Capture de `kubectl get pods` après le rollback :*
+
+![Pods après rollback](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-195-get-pods.png?raw=true)
+
+*Capture de `helm history` :*
+
+![Helm history](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-195-helm-history.png?raw=true)
+
+L'historique montre l'installation (révision 1), l'upgrade (révision 2), puis le rollback vers la révision 1. Chaque rollback crée une nouvelle révision au lieu d'effacer l'historique.
+
+> **Problème rencontré :** après le passage à Helm, l'ingress renvoyait `502 Bad Gateway`. La cause était la NetworkPolicy `default-deny`, qui bloquait le trafic venant du contrôleur d'ingress. La policy `allow-ingress-controller` (`templates/networkpolicy-ingress.yaml`) a corrigé le problème : `/api/health` répond de nouveau `{"status":"OK"}`.
