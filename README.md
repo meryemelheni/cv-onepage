@@ -2289,3 +2289,84 @@ kubectl get pods -n portfolio
 L'historique montre l'installation (révision 1), l'upgrade (révision 2), puis le rollback vers la révision 1. Chaque rollback crée une nouvelle révision au lieu d'effacer l'historique.
 
 > **Problème rencontré :** après le passage à Helm, l'ingress renvoyait `502 Bad Gateway`. La cause était la NetworkPolicy `default-deny`, qui bloquait le trafic venant du contrôleur d'ingress. La policy `allow-ingress-controller` (`templates/networkpolicy-ingress.yaml`) a corrigé le problème : `/api/health` répond de nouveau `{"status":"OK"}`.
+
+## 37. Kustomize
+
+### 196. Structure Kustomize
+
+```
+kustomize
+├── base
+│   ├── api-deployment.yaml
+│   ├── frontend-deployment.yaml
+│   ├── ingress.yaml
+│   ├── kustomization.yaml
+│   ├── networkpolicy-ingress.yaml
+│   ├── networkpolicy.yaml
+│   └── services.yaml
+└── overlays
+    ├── dev
+    │   └── kustomization.yaml
+    ├── staging
+    │   └── kustomization.yaml
+    └── prod
+        └── kustomization.yaml
+```
+
+![Structure Kustomize](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-196-kustomize-tree.png?raw=true)
+
+La `base/` contient les manifests communs, sans namespace. Chaque overlay ajoute ce qui diffère : namespace, replicas, `API_URL` et host de l'ingress. Le fichier `networkpolicy-ingress.yaml` a dû être réécrit sans `{{ .Release.Namespace }}`, car cette syntaxe Helm n'est pas comprise par Kustomize.
+
+### 197. Replicas par environnement
+
+| Environnement | Replicas frontend | Replicas API | Namespace |
+|---|---|---|---|
+| DEV | 1 | 1 | `portfolio-dev` |
+| STAGING | 2 | 2 | `portfolio-staging` |
+| PROD | 3 | 3 | `portfolio-prod` |
+
+Configuré avec le champ `replicas:` de chaque `kustomization.yaml` d'overlay.
+
+### 198. API_URL par environnement
+
+Un patch JSON modifie la variable `API_URL` du frontend dans chaque overlay :
+
+| Environnement | API_URL | Host de l'ingress |
+|---|---|---|
+| DEV | `http://api:3001` | `portfolio-dev.local` |
+| STAGING | `http://api.portfolio-staging.svc.cluster.local:3001` | `portfolio-staging.local` |
+| PROD | `http://api.portfolio-prod.svc.cluster.local:3001` | `portfolio-prod.local` |
+
+```bash
+for e in dev staging prod; do echo "== $e =="; kubectl kustomize overlays/$e | grep -E "^  replicas:|value: http|host:"; done
+```
+
+![Replicas et API_URL](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-197-198-kustomize-overlays.png?raw=true)
+
+### 199. Déploiement de l'environnement DEV
+
+```bash
+kubectl create namespace portfolio-dev
+kubectl apply -k overlays/dev
+kubectl get all,ingress,networkpolicy -n portfolio-dev
+```
+
+![Kustomize apply dev](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-199-kustomize-apply-dev.png?raw=true)
+
+L'environnement DEV tourne dans le namespace `portfolio-dev`, séparé du déploiement Helm (`portfolio`) : 1 pod frontend, 1 pod API, les services, l'ingress et les 3 NetworkPolicies.
+
+### 200. Comparaison Helm et Kustomize
+
+| Critère | Helm | Kustomize |
+|---|---|---|
+| **Principe** | Moteur de templates (`{{ .Values }}`) | Patches sur du YAML standard, sans template |
+| **Fichiers** | Chart (templates + values.yaml) | base + overlays |
+| **Lisibilité** | YAML mélangé à du Go template | Manifests en YAML valide |
+| **Gestion des versions** | Releases, `helm history`, `helm rollback` | Aucune notion de release (rollback via Git) |
+| **Packaging et partage** | Oui (charts, dépôts, dépendances) | Non |
+| **Multi-environnements** | Un `values.yaml` par environnement | Un overlay par environnement |
+| **Intégré à kubectl** | Non (outil séparé) | Oui (`kubectl apply -k`) |
+| **Courbe d'apprentissage** | Moyenne | Faible |
+| **Cas d'usage** | Distribuer une application, installer des charts tiers | Adapter ses propres manifests par environnement |
+
+**Conclusion :** Helm convient pour packager et versionner une application, et pour installer des charts tiers (Prometheus, Argo CD). Kustomize convient mieux pour adapter ses propres manifests à plusieurs environnements sans template. Les deux sont complémentaires, et Argo CD sait utiliser l'un comme l'autre.
