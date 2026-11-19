@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: portfolio-prod
+resources:
+  - ../../base
+replicas:
+  - name: frontend
+    count: 3
+  - name: api
+    count: 3
+patches:
+  - target:
+      kind: Deployment
+      name: frontend
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/value
+        value: "http://api.portfolio-prod.svc.cluster.local:3001"
+  - target:
+      kind: Ingress
+      name: portfolio-ingress
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: portfolio-prod.local
