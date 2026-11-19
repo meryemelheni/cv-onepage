@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/meryemelheni/cv-onepage/compare/v1.1.0...v1.2.0) (2026-11-19)
+
+
+### Features
+
+* ajout du Helm chart (frontend, api, ingress, networkpolicy) ([6897b77](https://github.com/meryemelheni/cv-onepage/commit/6897b771fb9a626c4ff571d5236690b7ec4f2647))
+
 # [1.1.0](https://github.com/meryemelheni/cv-onepage/compare/v1.0.5...v1.1.0) (2026-11-12)
 
 
