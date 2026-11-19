@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: portfolio
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: {{ .Values.api.image }}:{{ .Values.api.tag }}
+        ports:
+        - containerPort: 3001
+        resources:
+          {{- toYaml .Values.api.resources | nindent 10 }}

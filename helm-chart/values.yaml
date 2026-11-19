@@ -1,0 +1,27 @@
+frontend:
+  image: maryemelheni/portfolio-nextjs
+  tag: latest
+  replicas: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+
+api:
+  image: maryemelheni/contact-api
+  tag: latest
+  replicas: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+
+ingress:
+  enabled: true
+  host: portfolio.local
