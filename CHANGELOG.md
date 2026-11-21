@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/meryemelheni/cv-onepage/compare/v1.3.0...v1.4.0) (2026-11-21)
+
+
+### Features
+
+* images Harbor et imagePullSecret (robot account lecture seule) ([5c73b57](https://github.com/meryemelheni/cv-onepage/commit/5c73b57fe2a85adcb75c092033ecd99e08b0ef3c))
+
 # [1.3.0](https://github.com/meryemelheni/cv-onepage/compare/v1.2.0...v1.3.0) (2026-11-21)
 
 
