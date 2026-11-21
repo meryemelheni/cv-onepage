@@ -12,9 +12,11 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+      - name: harbor-pull
       containers:
       - name: frontend
-        image: maryemelheni/portfolio-nextjs:latest
+        image: 192.168.65.132:8085/portfolio/frontend:1.0.0
         ports:
         - containerPort: 3000
         env:

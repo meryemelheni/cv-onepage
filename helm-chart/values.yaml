@@ -1,6 +1,6 @@
 frontend:
-  image: maryemelheni/portfolio-nextjs
-  tag: latest
+  image: 192.168.65.132:8085/portfolio/frontend
+  tag: 1.0.0
   replicas: 1
   resources:
     requests:
@@ -11,8 +11,8 @@ frontend:
       cpu: "500m"
 
 api:
-  image: maryemelheni/contact-api
-  tag: latest
+  image: 192.168.65.132:8085/portfolio/api
+  tag: 1.0.0
   replicas: 1
   resources:
     requests:

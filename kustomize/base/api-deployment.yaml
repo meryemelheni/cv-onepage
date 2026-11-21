@@ -12,9 +12,11 @@ spec:
       labels:
         app: api
     spec:
+      imagePullSecrets:
+      - name: harbor-pull
       containers:
       - name: api
-        image: maryemelheni/contact-api:latest
+        image: 192.168.65.132:8085/portfolio/api:1.0.0
         ports:
         - containerPort: 3001
         resources:

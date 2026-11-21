@@ -13,6 +13,8 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+      - name: harbor-pull
       containers:
       - name: frontend
         image: {{ .Values.frontend.image }}:{{ .Values.frontend.tag }}
