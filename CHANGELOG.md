@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/meryemelheni/cv-onepage/compare/v1.4.0...v1.5.0) (2026-11-21)
+
+
+### Features
+
+* policy Kyverno ImageValidatingPolicy (verification Cosign) ([c7afa11](https://github.com/meryemelheni/cv-onepage/commit/c7afa11a3f89012c4672280c82d24645d0fdd673))
+
 # [1.4.0](https://github.com/meryemelheni/cv-onepage/compare/v1.3.0...v1.4.0) (2026-11-21)
 
 
