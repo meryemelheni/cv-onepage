@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/meryemelheni/cv-onepage/compare/v1.2.0...v1.3.0) (2026-11-21)
+
+
+### Bug Fixes
+
+* **api:** ajout de @aws-sdk/client-sqs et d'un .dockerignore ([8c91410](https://github.com/meryemelheni/cv-onepage/commit/8c9141085305597089c51be0fc79b9edc3b7eb48))
+
+
+### Features
+
+* ajout de la structure Kustomize (base, dev, staging, prod) ([aa649cb](https://github.com/meryemelheni/cv-onepage/commit/aa649cb4dd6b66664f43e16cfb0d921355f412e8))
+
 # [1.2.0](https://github.com/meryemelheni/cv-onepage/compare/v1.1.0...v1.2.0) (2026-11-19)
 
 
