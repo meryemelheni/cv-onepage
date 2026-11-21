@@ -1,0 +1,43 @@
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: verify-image-signature
+spec:
+  validationActions: [Deny]
+  evaluation:
+    background:
+      enabled: false
+  webhookConfiguration:
+    timeoutSeconds: 30
+  matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values: ["portfolio", "portfolio-dev"]
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  matchImageReferences:
+  - glob: "192.168.65.132:8085/portfolio/*"
+  credentials:
+    secrets:
+    - harbor-pull
+  attestors:
+  - name: cosign
+    cosign:
+      key:
+        data: |
+          -----BEGIN PUBLIC KEY-----
+          MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfeovaC6PA+KzPGDSywNq38SbkTkx
+          BvBC670IKfyugYTs5et0kOdzSTih0P5OKBDPQJAB6Zl9oNsOltmzbwB3RQ==
+          -----END PUBLIC KEY-----
+      ctlog:
+        insecureIgnoreSCT: true
+        insecureIgnoreTlog: true
+  validations:
+  - expression: >-
+      images.containers.map(image, verifyImageSignatures(image, [attestors.cosign])).all(e, e > 0)
+    message: "Image non signée ou signature invalide : déploiement refusé."
