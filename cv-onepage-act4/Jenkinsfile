@@ -31,4 +31,20 @@ pipeline {
             }
         }
     }
+        stage('Update GitOps Repo') {
+            steps {
+                sh '''
+                    cd /tmp
+                    rm -rf devsecops-portfolio-gitops
+                    git clone git@github.com:meryemelheni/devsecops-portfolio-gitops.git
+                    cd devsecops-portfolio-gitops
+                    sed -i "s|portfolio/api:.*|portfolio/api:${GIT_COMMIT}|" apps/portfolio/base/api-deployment.yaml
+                    git config user.email "jenkins@example.com"
+                    git config user.name "Jenkins"
+                    git add .
+                    git commit -m "ci: mise a jour image API ${GIT_COMMIT}" || true
+                    git push origin main
+                '''
+            }
+        }
 }
