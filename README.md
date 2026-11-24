@@ -2370,3 +2370,250 @@ L'environnement DEV tourne dans le namespace `portfolio-dev`, séparé du déplo
 | **Cas d'usage** | Distribuer une application, installer des charts tiers | Adapter ses propres manifests par environnement |
 
 **Conclusion :** Helm convient pour packager et versionner une application, et pour installer des charts tiers (Prometheus, Argo CD). Kustomize convient mieux pour adapter ses propres manifests à plusieurs environnements sans template. Les deux sont complémentaires, et Argo CD sait utiliser l'un comme l'autre.
+
+## 38. Images du registre et contrôle avant déploiement
+
+### 201. Images Harbor dans les manifests
+
+Les images sont construites à partir du code du dépôt, testées en local, puis poussées dans Harbor (`192.168.65.132:8085`, projet privé `portfolio`) avec un tag de version. Les manifests Helm et Kustomize pointent vers ces images.
+
+| Image | Digest |
+|---|---|
+| `portfolio/api:1.0.0` | `sha256:518cae353285ba37ef2a6c6f7d5d0524187ca4a8e9674b8ece86ffc78443b8c5` |
+| `portfolio/frontend:1.0.0` | `sha256:1e0077b58d9923d6bbaed8970729655deeeaa0269748f1740b1bcc4e4ea1c068` |
+
+```bash
+docker build -t 192.168.65.132:8085/portfolio/api:1.0.0 api
+docker build -t 192.168.65.132:8085/portfolio/frontend:1.0.0 portfolio-nextjs
+docker push 192.168.65.132:8085/portfolio/api:1.0.0
+docker push 192.168.65.132:8085/portfolio/frontend:1.0.0
+```
+
+K3s utilise containerd : le registre HTTP est déclaré dans `/etc/rancher/k3s/registries.yaml`.
+
+![a8-201-harbor-projet](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-201-harbor-projet.png?raw=true)
+
+![a8-201-images-harbor](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-201-images-harbor.png?raw=true)
+
+Le test des images en local (avant la publication) a révélé un défaut : `@aws-sdk/client-sqs` n'était pas déclaré dans `api/package.json`, donc l'API plantait au démarrage. Il a été corrigé, et un `.dockerignore` a été ajouté pour ne pas copier `node_modules` dans l'image.
+
+![a8-201-test-frontend](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-201-test-frontend.png?raw=true)
+
+### 202. Robot account en lecture seule et imagePullSecret
+
+Un robot account `robot$k8s-pull` a été créé avec uniquement les droits Pull et Lire sur le projet `portfolio`, sans permission système. Son secret est stocké dans un `imagePullSecret` Kubernetes `harbor-pull` (il n'est dans aucun fichier du dépôt), référencé par les Deployments :
+
+```yaml
+spec:
+  template:
+    spec:
+      imagePullSecrets:
+      - name: harbor-pull
+```
+
+![a8-202-robot-account](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-202-robot-account.png?raw=true)
+
+![a8-202-pods-harbor](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-202-pods-harbor.png?raw=true)
+
+### 203. Signature Cosign et policy Kyverno de vérification
+
+Les images sont signées avec Cosign (clé privée gardée hors dépôt), par digest :
+
+```bash
+cosign sign --key cosign.key --use-signing-config=false --tlog-upload=false --allow-insecure-registry \
+  192.168.65.132:8085/portfolio/api@sha256:518cae353285ba37ef2a6c6f7d5d0524187ca4a8e9674b8ece86ffc78443b8c5
+cosign sign --key cosign.key --use-signing-config=false --tlog-upload=false --allow-insecure-registry \
+  192.168.65.132:8085/portfolio/frontend@sha256:1e0077b58d9923d6bbaed8970729655deeeaa0269748f1740b1bcc4e4ea1c068
+```
+
+![a8-203-cosign-sign](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-203-cosign-sign.png?raw=true)
+
+![a8-203-cosign-verify](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-203-cosign-verify.png?raw=true)
+
+Harbor affiche la signature comme accessoire (`subject.accessory`) mais ne coche pas la colonne « Signé », qui ne reconnaît pas le format de signature de Cosign v3. La vérification fait foi avec `cosign verify`.
+
+![a8-203-harbor-signe](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-203-harbor-signe.png?raw=true)
+
+Kyverno v1.20 n'accepte plus la création de `ClusterPolicy` (`kyverno.io/v1`) : la vérification utilise donc une `ImageValidatingPolicy` (fichier `kyverno-verify-images.yaml`), limitée aux namespaces `portfolio` et `portfolio-dev`. Elle contient uniquement la clé **publique**.
+
+```yaml
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: verify-image-signature
+spec:
+  validationActions: [Deny]
+  matchImageReferences:
+  - glob: "192.168.65.132:8085/portfolio/*"
+  credentials:
+    secrets:
+    - harbor-pull
+  attestors:
+  - name: cosign
+    cosign:
+      key:
+        data: |
+          -----BEGIN PUBLIC KEY-----
+          MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfeovaC6PA+KzPGDSywNq38SbkTkx
+          BvBC670IKfyugYTs5et0kOdzSTih0P5OKBDPQJAB6Zl9oNsOltmzbwB3RQ==
+          -----END PUBLIC KEY-----
+      ctlog:
+        insecureIgnoreSCT: true
+        insecureIgnoreTlog: true
+  validations:
+  - expression: >-
+      images.containers.map(image, verifyImageSignatures(image, [attestors.cosign])).all(e, e > 0)
+    message: "Image non signée ou signature invalide : déploiement refusé."
+```
+
+(Extrait simplifié : le fichier complet contient aussi les règles de correspondance sur les pods et le délai du webhook.) Le registre étant en HTTP, Kyverno est lancé avec `--allowInsecureRegistry=true` (réservé à ce TP).
+
+![a8-203-kyverno-policy](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-203-kyverno-policy.png?raw=true)
+
+### 204. Refus d'une image non signée
+
+Une image différente (`portfolio/unsigned:1.0.0`, sans signature) a été publiée dans Harbor, puis un déploiement a été tenté :
+
+```bash
+kubectl run test-unsigned -n portfolio-dev --image=192.168.65.132:8085/portfolio/unsigned:1.0.0
+```
+
+Message de refus : `Image non signée ou signature invalide : déploiement refusé` avec `failed to verify cosign signatures: no signatures found`.
+
+![a8-204-refus-image-non-signee](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-204-refus-image-non-signee.png?raw=true)
+
+À l'inverse, le redémarrage du déploiement `api` (image signée) est accepté :
+
+![a8-204-image-signee-acceptee](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-204-image-signee-acceptee.png?raw=true)
+
+> **Note :** PostgreSQL est mis à 0 réplica depuis cette partie : son conteneur ne démarrait pas dans cet environnement (processus `gosu` bloqué, puis `Permission denied` sur un signal). Cela n'affecte pas les routes de lecture de l'API. Le volume `postgres-pvc` est conservé.
+
+## 39. GitOps avec Argo CD
+
+### 205. Installation d'Argo CD
+
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl get pods -n argocd
+```
+
+L'option `--server-side` évite une erreur de taille sur les CRD.
+
+![a8-205-argocd-pods](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-205-argocd-pods.png?raw=true)
+
+### 206. Dépôt GitOps
+
+Un second dépôt, `devsecops-portfolio-gitops`, contient uniquement les manifests Kubernetes. Le dépôt `cv-onepage` contient le code, et le dépôt GitOps l'état voulu du cluster.
+
+![a8-206-depot-gitops](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-206-depot-gitops.png?raw=true)
+
+### 207. Déploiement automatique depuis Git
+
+Une `Application` Argo CD surveille le dépôt GitOps et déploie dans le namespace `gitops-dev`, avec synchronisation automatique, suppression des ressources orphelines (`prune`) et auto-réparation (`selfHeal`) :
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portfolio-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/meryemelheni/devsecops-portfolio-gitops.git
+    targetRevision: main
+    path: apps/portfolio
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitops-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+Le secret `harbor-pull` est créé à la main dans chaque namespace GitOps, car Argo CD ne doit pas versionner de secret en clair.
+
+![a8-207-argocd-synced](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-207-argocd-synced.png?raw=true)
+
+### 208. Modification des replicas dans Git
+
+Le nombre de replicas du frontend a été passé de 1 à 2 dans le dépôt GitOps, puis poussé :
+
+```bash
+git commit -am "feat: augmentation replicas frontend a 2"
+git push
+```
+
+Argo CD détecte le changement et l'applique sans intervention.
+
+- Avant la synchronisation : 1 pod frontend (capture du point 207 ci-dessus).
+- Après la synchronisation :
+
+![a8-208-replicas-apres](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-208-replicas-apres.png?raw=true)
+
+### 209. Self-healing
+
+Une ressource a été modifiée manuellement dans Kubernetes. Argo CD la remet dans l'état décrit par Git.
+
+![a8-209-self-healing](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-209-self-healing.png?raw=true)
+
+### 210. Mise à jour de la version de l'image de l'API
+
+Le tag de l'image de l'API a été modifié dans le dépôt GitOps. Argo CD a déployé la nouvelle version.
+
+![a8-210-api-v1](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-210-api-v1.png?raw=true)
+
+## 40. Environnements GitOps
+
+### 211. Organisation du dépôt en trois environnements
+
+Le dépôt GitOps contient une base commune (`apps/portfolio/base`) et trois environnements : dev, staging et production. Chacun est une application Argo CD distincte, dans son propre namespace.
+
+| Application Argo CD | Namespace |
+|---|---|
+| `portfolio-dev` | `gitops-dev` |
+| `portfolio-staging` | `gitops-staging` |
+| `portfolio-prod` | `gitops-prod` |
+
+![a8-211-argocd-3-apps](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-211-argocd-3-apps.png?raw=true)
+
+### 212. Trois environnements, configurations différentes
+
+Les trois environnements sont déployés avec un nombre de replicas différent.
+
+| Environnement | Frontend | API |
+|---|---|---|
+| dev | 2 | 1 |
+| staging | 2 | 2 |
+| production | 2 | 2 |
+
+Au premier déploiement, plusieurs pods de staging et de production sont restés `Pending` : la VM manque de ressources. Les replicas de production ont donc été ramenés à 2 (commit `fix: reduction replicas prod a 2`).
+
+![a8-212-3-environnements](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-212-3-environnements.png?raw=true)
+
+### 213. Promotion GitOps sans reconstruction
+
+La promotion DEV → STAGING → PRODUCTION se fait en copiant le même tag d'image d'un environnement à l'autre dans le dépôt GitOps. L'image n'est pas reconstruite : seul Git change.
+
+![a8-213-promotion-gitops](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-213-promotion-gitops.png?raw=true)
+
+### 214. Même image signée dans les trois environnements
+
+```bash
+for ns in gitops-dev gitops-staging gitops-prod; do
+  echo "== $ns"
+  kubectl get pods -n $ns -o jsonpath='{range .items[*]}{.spec.containers[0].image}{"  "}{.status.containerStatuses[0].imageID}{"\n"}{end}' | sort -u
+done
+```
+
+Les trois environnements utilisent les mêmes digests : `sha256:518cae35...` (API) et `sha256:1e0077b5...` (frontend).
+
+![a8-214-meme-digest](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-214-meme-digest.png?raw=true)
+
+### 215. ApplicationSet
+
+Un `ApplicationSet` génère les applications des trois environnements à partir d'un seul fichier.
+
+![a8-215-applicationset](https://github.com/meryemelheni/cv-onepage/blob/main/cv-onepage/screenshots/a8-215-applicationset.png?raw=true)
